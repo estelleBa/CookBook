@@ -12,9 +12,10 @@ app.use(session({
 }));
 
 var UserController = require('./Models/user/UserController');
-//var FriendController = require('./Models/friend/FriendController');
+var FollowController = require('./Models/follow/FollowController');
+
 app.use('/users', UserController);
-//app.use('/friends', FriendController);
+app.use('/follows', FollowController);
 
 var server = app.listen(8000, function(){
   var port = server.address().port
