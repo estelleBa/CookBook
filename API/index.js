@@ -12,10 +12,10 @@ app.use(session({
 }));
 
 var UserController = require('./Models/user/UserController');
-var FollowController = require('./Models/follow/FollowController');
+var RecipeController = require('./Models/recipe/RecipeController');
 
 app.use('/users', UserController);
-app.use('/follows', FollowController);
+app.use('/recipes', RecipeController);
 
 var server = app.listen(8000, function(){
   var port = server.address().port

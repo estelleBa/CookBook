@@ -21,6 +21,7 @@ router.route('/')
 .get(function(req, res){
 	if(isLoggedIn(req)){
     UserModel.User.find({}).exec(function(err, doc){
+			if(err) res.status(500).json({res : err});
       res.status(200).json({res : doc});
     });
   }
