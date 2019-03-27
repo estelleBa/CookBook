@@ -282,8 +282,8 @@ router.route('/unfollow')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/followed')
-// get followed
+router.route('/following')
+// get followings
 .get(function(req, res){
 	const user_id = isLoggedIn(req);
 	if(user_id){
@@ -297,7 +297,18 @@ router.route('/followed')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
+router.route('/followers')
+// get followers
+.get(function(req, res){
+	const user_id = isLoggedIn(req);
+	if(user_id){
+		UserModel.User.findOne({ _id: user_id }).populate('followers').exec(function(err, doc){
+			if(err) res.status(500).json({res : err});
+      else res.status(200).json({res : doc});
+    });
+	}
+	else res.status(401).json({res : 401});
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 // 0 = not ok
