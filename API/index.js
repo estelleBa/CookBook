@@ -1,8 +1,8 @@
-var express = require('express');
-var app = express();
-var db = require('./db');
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
+let express = require('express');
+let app = express();
+let db = require('./db');
+let session = require('express-session');
+let cookieParser = require('cookie-parser');
 
 express().use(cookieParser());
 app.use(session({
@@ -11,14 +11,14 @@ app.use(session({
   saveUninitialized: true
 }));
 
-var UserController = require('./Models/user/UserController');
-var RecipeController = require('./Models/recipe/RecipeController');
+let UserController = require('./Models/user/UserController');
+let RecipeController = require('./Models/recipe/RecipeController');
 
 app.use('/users', UserController);
 app.use('/recipes', RecipeController);
 
-var server = app.listen(8000, function(){
-  var port = server.address().port
+let server = app.listen(8000, function(){
+  let port = server.address().port
   console.log("Listening on port " + port)
 });
 

@@ -1,16 +1,16 @@
-var express = require('express');
-var mongoose = require('mongoose');
-var router = express.Router();
-var bodyParser = require('body-parser');
+let express = require('express');
+let mongoose = require('mongoose');
+let router = express.Router();
+let bodyParser = require('body-parser');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var bcrypt = require('bcrypt');
+let bcrypt = require('bcrypt');
 
-var UserModel = require('./User');
+let UserModel = require('./User');
 
 ////////////////////////////////////////////////////////////////////////////////
 // USERS
@@ -22,7 +22,7 @@ router.route('/')
 	if(isLoggedIn(req)){
     UserModel.User.find({}).exec(function(err, doc){
 			if(err) res.status(500).json({res : err});
-      res.status(200).json({res : doc});
+      else res.status(200).json({res : doc});
     });
   }
   else res.status(401).json({res : 401});
@@ -39,8 +39,8 @@ router.route('/create')
 		if(body.login !== undefined && body.login !== '' &&
 		body.email !== undefined && body.email !== ''&&
 		body.password !== undefined && body.password !== '') {
-			var pass = cryptPass(body.password)
-			var newUser = new UserModel.User({
+			let pass = cryptPass(body.password)
+			let newUser = new UserModel.User({
 				login: body.login,
 				email: body.email,
 				password: pass
@@ -61,7 +61,7 @@ router.route('/find/:id')
 // find user by id
 .get(function(req, res){
   if(isLoggedIn(req)){
-    var ObjectId = mongoose.Types.ObjectId(req.params.id);
+    let ObjectId = mongoose.Types.ObjectId(req.params.id);
     UserModel.User.findOne({ _id : ObjectId}).exec(function(err, doc){
 			if(err) res.status(500).json({res : err});
 			else if(!doc) res.status(404).json({res : 404});
@@ -84,8 +84,8 @@ router.route('/update/:id')
 			if(err) res.status(500).json({res : err});
 			if(!doc) res.status(404).json({res : 404});
 			else {
-				var login = (body.login !== undefined && body.login !== '') ? body.login : doc.login;
-				var email = (body.email !== undefined && body.email !== '') ? body.email : doc.email;
+				let login = (body.login !== undefined && body.login !== '') ? body.login : doc.login;
+				let email = (body.email !== undefined && body.email !== '') ? body.email : doc.email;
 				UserModel.User.findOneAndUpdate({ _id : user_id}, {$set: {login: login, email: email}}).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
 					else res.status(200).json({res : 200});
@@ -321,7 +321,7 @@ function isLoggedIn(req){
 }
 
 function isLoginValid(user_id, login, callback){
-	var query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, login: login }) : UserModel.User.find({ login: login });
+	let query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, login: login }) : UserModel.User.find({ login: login });
 
   query.exec(function(err, doc){
     if(doc.length > 0) validity=2;
@@ -331,9 +331,9 @@ function isLoginValid(user_id, login, callback){
 }
 
 function isMailValid(user_id, email, callback){
-	var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	let reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   if(reg.test(email)){
-		var query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, email: email }) : UserModel.User.find({ email: email });
+		let query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, email: email }) : UserModel.User.find({ email: email });
 
 		query.exec(function(err, doc){
 	    if(doc.length > 0) validity=2;

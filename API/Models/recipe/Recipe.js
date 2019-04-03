@@ -1,30 +1,34 @@
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 
-var RecipeSchema = new mongoose.Schema({
+let RecipeSchema = new mongoose.Schema({
   title: String,
   image: String,
 	quantity: Number,
 	time: String,
 	chef: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-	ingredients: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ingredients'}],
+	ingredients: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient'}],
   steps: [{type: mongoose.Schema.Types.ObjectId, ref: 'Step'}],
   likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-	grade: {type: mongoose.Schema.Types.ObjectId, ref: 'Grade'},
-	creationDate: Date
+	grades: [{type: mongoose.Schema.Types.ObjectId, ref: 'Grade'}],
+	creationDate: {type: Date, default: Date.now} 
 });
 
-var IngredientSchema = new mongoose.Schema({
-	name: String,
+let FoodSchema = new mongoose.Schema({
+	name: String
+});
+
+let IngredientSchema = new mongoose.Schema({
+	food: {type: mongoose.Schema.Types.ObjectId, ref: 'Food'},
 	quantity: Number,
 	unity: String
 });
 
-var StepSchema = new mongoose.Schema({
+let StepSchema = new mongoose.Schema({
   position: Number,
 	content: String
 });
 
-var GradeSchema = new mongoose.Schema({
+let GradeSchema = new mongoose.Schema({
   user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 	recipe: {type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'},
   grade: Number,
@@ -32,8 +36,9 @@ var GradeSchema = new mongoose.Schema({
 });
 
 const Recipe = mongoose.model('Recipe', RecipeSchema);
+const Food = mongoose.model('Food', FoodSchema);
 const Ingredient = mongoose.model('Ingredient', IngredientSchema);
 const Step = mongoose.model('Step', StepSchema);
 const Grade = mongoose.model('Grade', GradeSchema);
 
-module.exports = { Recipe, Ingredient, Step, Grade };
+module.exports = { Recipe, Food, Ingredient, Step, Grade };
