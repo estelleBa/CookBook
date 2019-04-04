@@ -10,7 +10,7 @@ let RecipeSchema = new mongoose.Schema({
   steps: [{type: mongoose.Schema.Types.ObjectId, ref: 'Step'}],
   likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 	grades: [{type: mongoose.Schema.Types.ObjectId, ref: 'Grade'}],
-	creationDate: {type: Date, default: Date.now} 
+	creationDate: {type: Date, default: Date.now}
 });
 
 let FoodSchema = new mongoose.Schema({
@@ -32,6 +32,7 @@ let GradeSchema = new mongoose.Schema({
   user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 	recipe: {type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'},
   grade: Number,
+	comment: String,
   addDate: Date
 });
 
