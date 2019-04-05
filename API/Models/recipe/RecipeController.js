@@ -10,6 +10,7 @@ router.use(bodyParser.json());
 ////////////////////////////////////////////////////////////////////////////////
 
 let RecipeModel = require('./Recipe');
+let UserModel = require('../user/User');
 
 ////////////////////////////////////////////////////////////////////////////////
 // RECIPES
@@ -60,7 +61,13 @@ router.route('/create')
 							}
 						}
 						insertSteps().then(() => {
-							console.log('step inserted')
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $push: { recipes: recipe_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else res.status(200).json({res : 200});;
+							});
 						});
 					});
 				}
@@ -69,6 +76,34 @@ router.route('/create')
 		else res.json({res : 0});
 	}
 	else res.status(401).json({res : 401});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/show/:id')
+// show recipe
+.get(function(req, res){
+  RecipeModel.Recipe.findOne({ _id : req.params.id })
+	.populate({
+			path: 'chef steps likes grades ingredients',
+			populate: {
+				path: 'food'
+			}
+	}).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+    else res.status(200).json({res : doc});
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/search/:text')
+// search recipes
+.get(function(req, res){
+	RecipeModel.Recipe.find({ title : { $regex : req.params.text }}).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+    else res.status(200).json({res : doc});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
