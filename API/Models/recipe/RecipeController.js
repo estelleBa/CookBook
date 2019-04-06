@@ -11,6 +11,8 @@ router.use(bodyParser.json());
 
 let RecipeModel = require('./Recipe');
 let UserModel = require('../user/User');
+let CategoryModel = require('../category/Category');
+let BoardModel = require('../board/Board');
 
 ////////////////////////////////////////////////////////////////////////////////
 // RECIPES
@@ -36,7 +38,8 @@ router.route('/create')
 		if(body.title !== undefined && body.title !== '' &&
 		body.quantity !== undefined && body.quantity !== '' &&
 		body.ingredients !== undefined && body.ingredients.length > 0 &&
-		body.steps !== undefined && body.steps.length > 0) {
+		body.steps !== undefined && body.steps.length > 0 &&
+    body.categories !== undefined && body.categories.length > 0) {
 			let newRecipe = new RecipeModel.Recipe({
 				title: body.title,
 				image: body.image,
@@ -61,13 +64,41 @@ router.route('/create')
 							}
 						}
 						insertSteps().then(() => {
-							UserModel.User.updateOne(
-								{ _id: user_id },
-								{ $push: { recipes: recipe_id } }
-							).exec(function(err, doc){
-								if(err) res.status(500).json({res : err});
-								else res.status(200).json({res : 200});;
-							});
+              const addCategories = async() => {
+  							for(const category of body.categories){
+  								await addCategory(category, recipe_id);
+  							}
+  						}
+              addCategories().then(() => {
+                if(body.labels !== undefined && body.labels.length > 0) {
+                  const addLabels = async() => {
+      							for(const label of body.labels){
+      								await addLabel(label, recipe_id);
+      							}
+      						}
+                  addLabels();
+                }
+                if(body.hashtags !== undefined && body.hashtags.length > 0) {
+                  const addHashtags = async() => {
+      							for(const hashtag of body.hashtags){
+      								await createHashtag(hashtag, recipe_id);
+      							}
+      						}
+                  addHashtags();
+                }
+  							UserModel.User.updateOne(
+  								{ _id: user_id },
+  								{ $push: { recipes: recipe_id } }
+  							).exec(function(err, doc){
+  								if(err) res.status(500).json({res : err});
+  								else {
+                    if(body.board !== undefined && body.board !== '') {
+        							addToBoard(body.board, recipe_id);
+                    }
+                    res.status(200).json({res : 200});
+                  }
+  							});
+              });
 						});
 					});
 				}
@@ -85,7 +116,7 @@ router.route('/show/:id')
 .get(function(req, res){
   RecipeModel.Recipe.findOne({ _id : req.params.id })
 	.populate({
-			path: 'chef steps likes grades ingredients',
+			path: 'chef categories ingredients steps likes grades labels hashtags boards',
 			populate: {
 				path: 'food'
 			}
@@ -169,6 +200,82 @@ function insertStep(step, recipe_id){
 			});
 		}
 	});
+}
+
+function addCategory(category, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(category.id);
+  CategoryModel.Category.updateOne(
+    { _id: ObjectId },
+    { $push: { recipes: recipe_id } }
+  ).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else {
+      RecipeModel.Recipe.updateOne(
+        { _id: recipe_id },
+        { $push: { categories: ObjectId } }
+      ).exec(function(err, doc){
+        if(err) res.status(500).json({res : err});
+        else return;
+      });
+    }
+  });
+}
+
+function addLabel(label, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(label.id);
+  RecipeModel.Recipe.updateOne(
+    { _id: recipe_id },
+    { $push: { labels: ObjectId } }
+  ).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else return;
+  });
+}
+
+function createHashtag(hashtag, recipe_id){
+  RecipeModel.Hashtag.findOne({ name : hashtag.name }).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+		else if(!doc){
+			let newHashtag = new RecipeModel.Hashtag({
+				name: hashtag.name
+			});
+			newHashtag.save(function(err){
+				if(err) res.status(500).json({res : err});
+				else addHashtag(newHashtag._id, recipe_id);
+			});
+		}
+		else addHashtag(doc._id, recipe_id);
+  });
+}
+
+function addHashtag(hashtag_id, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(hashtag_id);
+	RecipeModel.Recipe.updateOne(
+		{ _id: recipe_id },
+		{ $push: { hashtags: ObjectId } }
+	).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+		else return;
+	});
+}
+
+function addToBoard(board, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(board);
+  BoardModel.Board.updateOne(
+    { _id: ObjectId },
+    { $push: { recipes: recipe_id } }
+  ).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else {
+      RecipeModel.Recipe.updateOne(
+        { _id: recipe_id },
+        { $push: { boards: ObjectId } }
+      ).exec(function(err, doc){
+        if(err) res.status(500).json({res : err});
+        else return;
+      });
+    }
+  });
 }
 
 module.exports = router;

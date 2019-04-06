@@ -6,10 +6,15 @@ let RecipeSchema = new mongoose.Schema({
 	quantity: Number,
 	time: String,
 	chef: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  categories: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}],
 	ingredients: [{type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient'}],
   steps: [{type: mongoose.Schema.Types.ObjectId, ref: 'Step'}],
   likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 	grades: [{type: mongoose.Schema.Types.ObjectId, ref: 'Grade'}],
+  labels: [{type: mongoose.Schema.Types.ObjectId, ref: 'Label'}],
+  hashtags: [{type: mongoose.Schema.Types.ObjectId, ref: 'Hashtag'}],
+  boards: [{type: mongoose.Schema.Types.ObjectId, ref: 'Board'}],
+  done: Number,
 	creationDate: {type: Date, default: Date.now}
 });
 
@@ -36,10 +41,21 @@ let GradeSchema = new mongoose.Schema({
   addDate: Date
 });
 
+let LabelSchema = new mongoose.Schema({
+	name: String,
+  color: String
+});
+
+let HashtagSchema = new mongoose.Schema({
+	name: String
+});
+
 const Recipe = mongoose.model('Recipe', RecipeSchema);
 const Food = mongoose.model('Food', FoodSchema);
 const Ingredient = mongoose.model('Ingredient', IngredientSchema);
 const Step = mongoose.model('Step', StepSchema);
 const Grade = mongoose.model('Grade', GradeSchema);
+const Label = mongoose.model('Label', LabelSchema);
+const Hashtag = mongoose.model('Hashtag', HashtagSchema);
 
-module.exports = { Recipe, Food, Ingredient, Step, Grade };
+module.exports = { Recipe, Food, Ingredient, Step, Grade, Label, Hashtag };
