@@ -111,6 +111,76 @@ router.route('/create')
 
 ////////////////////////////////////////////////////////////////////////////////
 
+router.route('/delete/:id')
+// delete recipe
+.get (function(req, res){
+  const user_id = isLoggedIn(req);
+  if(user_id){
+    const ObjectId = mongoose.Types.ObjectId(req.params.id);
+    RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
+      if(err) res.status(500).json({res : err});
+      else if(!doc){
+        res.status(404).json({res : 404});
+      }
+      else {
+        const rmIngredients = async() => {
+          for(const ingredient of doc.ingredients){
+            await rmIngredient(ingredient._id);
+          }
+        }
+        rmIngredients().then(() => {
+          const rmSteps = async() => {
+            for(const step of doc.steps){
+              await rmStep(step._id);
+            }
+          }
+          rmSteps().then(() => {
+            const rmGrades = async() => {
+              for(const grade of doc.grades){
+                await rmGrade(grade._id);
+              }
+            }
+            rmGrades().then(() => {
+              RecipeModel.Recipe.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+                if(err) res.status(500).json({res : err});
+                else {
+                  UserModel.User.updateMany(
+                    { },
+                    { $pull: { likes: ObjectId, recipes: ObjectId } }
+                  ).exec(function(err, doc){
+                    if(err) res.status(500).json({res : err});
+                    else {
+                      CategoryModel.Category.updateMany(
+                        { },
+                        { $pull: { recipes: ObjectId } }
+                      ).exec(function(err, doc){
+                        if(err) res.status(500).json({res : err});
+                        else {
+                          BoardModel.Board.updateMany(
+                            { },
+                            { $pull: { recipes: ObjectId } }
+                          ).exec(function(err, doc){
+                            if(err) res.status(500).json({res : err});
+                            else {
+                              res.status(200).json({res : 200});
+                            }
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            });
+          });
+        });
+      }
+    });
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 router.route('/show/:id')
 // show recipe
 .get(function(req, res){
@@ -275,6 +345,30 @@ function addToBoard(board, recipe_id){
         else return;
       });
     }
+  });
+}
+
+function rmIngredient(id){
+  let ObjectId = mongoose.Types.ObjectId(id);
+  RecipeModel.Ingredient.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else return;
+  });
+}
+
+function rmStep(id){
+  let ObjectId = mongoose.Types.ObjectId(id);
+  RecipeModel.Step.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else return;
+  });
+}
+
+function rmGrade(id){
+  let ObjectId = mongoose.Types.ObjectId(id);
+  RecipeModel.Grade.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else return;
   });
 }
 
