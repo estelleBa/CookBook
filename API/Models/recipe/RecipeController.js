@@ -113,15 +113,13 @@ router.route('/create')
 
 router.route('/delete/:id')
 // delete recipe
-.get (function(req, res){
+.delete (function(req, res){
   const user_id = isLoggedIn(req);
   if(user_id){
     const ObjectId = mongoose.Types.ObjectId(req.params.id);
     RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
       if(err) res.status(500).json({res : err});
-      else if(!doc){
-        res.status(404).json({res : 404});
-      }
+      else if(!doc) res.status(404).json({res : 404});
       else {
         const rmIngredients = async() => {
           for(const ingredient of doc.ingredients){
@@ -177,6 +175,60 @@ router.route('/delete/:id')
       }
     });
   }
+  else res.status(401).json({res : 401});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/update/:id')
+// update recipe
+.put(function(req, res){
+  const user_id = isLoggedIn(req);
+  if(user_id){
+    const ObjectId = mongoose.Types.ObjectId(req.params.id);
+    const body = req.body;
+    RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
+  		if(err) res.status(500).json({res : err});
+      else if(!doc) res.status(404).json({res : 404});
+      else {
+				let image = (body.image !== undefined && body.image !== '') ? body.image : doc.image;
+        let oldCategories = doc.categories;
+        let categories = doc.categories;
+        if(body.categories !== undefined){
+          categories = [];
+          for(const category of body.categories){
+            const ObjectId = mongoose.Types.ObjectId(category.id);
+            categories.push(ObjectId)
+          }
+        }
+				RecipeModel.Recipe.findOneAndUpdate({ _id : ObjectId, chef : user_id }, {$set: { image: image, categories: categories }}).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else {
+            console.log(oldCategories)
+            if(body.categories !== undefined){
+              const addRecipeToCategories = async() => {
+                for(const category of body.categories){
+                  await addRecipeToCategory(category.id, ObjectId);
+                }
+              }
+              addRecipeToCategories().then(() => {
+                const rmOldRecipeCategories = async() => {
+                  for(const category of oldCategories){
+                    await rmOldRecipeCategory(category._id, ObjectId);
+                  }
+                }
+                rmOldRecipeCategories().then(() => {
+                  res.status(200).json({res : 200});
+                });
+              });
+            }
+            else res.status(200).json({res : 200});
+          }
+	      });
+      }
+    });
+  }
+  else res.status(401).json({res : 401});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,5 +423,39 @@ function rmGrade(id){
     else return;
   });
 }
+
+function addRecipeToCategory(id, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(id);
+  CategoryModel.Category.updateOne(
+		{ _id: ObjectId },
+		{ $push: { recipes: recipe_id } }
+	).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+		else return;
+	});
+}
+
+function rmOldRecipeCategory(id, recipe_id){
+  let ObjectId = mongoose.Types.ObjectId(id);
+  CategoryModel.Category.updateOne(
+		{ _id: ObjectId },
+		{ $pull: { recipes: recipe_id } }
+	).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+		else return;
+	});
+}
+
+// function updateCategory(id, recipe_id){
+//   let ObjectId = mongoose.Types.ObjectId(id);
+//   RecipeModel.Recipe.updateOne(
+//     { _id: recipe_id },
+//     { $pullAll: { categories } },
+//     { $push: { categories: ObjectId } }
+//   ).exec(function(err, doc){
+//     if(err) res.status(500).json({res : err});
+//     else return;
+//   });
+// }
 
 module.exports = router;
