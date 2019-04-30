@@ -135,24 +135,26 @@ router.route('/delete/:id')
                 else {
                   UserModel.User.updateMany(
                     { },
-                    { $pull: { likes: ObjectId, recipes: ObjectId } }
+                    { $pull: { boards: ObjectId }
                   ).exec(function(err, doc){
                     if(err) res.status(500).json({res : err});
                     else {
-                      CategoryModel.Category.updateMany(
+                      RecipeModel.Recipe.updateMany(
                         { },
-                        { $pull: { recipes: ObjectId } }
+                        { $pull: { boards: ObjectId } }
                       ).exec(function(err, doc){
                         if(err) res.status(500).json({res : err});
                         else {
-                          RecipeModel.Recipe.updateMany(
-                            { },
-                            { $pull: { recipes: ObjectId } }
-                          ).exec(function(err, doc){
-                            if(err) res.status(500).json({res : err});
-                            else {
-                              res.status(200).json({res : 200});
-                            }
+                          // RecipeModel.Recipe.updateMany(
+                          //   { },
+                          //   { $pull: { recipes: ObjectId } }
+                          // ).exec(function(err, doc){
+                          //   if(err) res.status(500).json({res : err});
+                          //   else {
+													// 		RecipeModel.Ingredient.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+													// 			if(err) res.status(500).json({res : err});
+													// 		});
+                          //   }
                           });
                         }
                       });

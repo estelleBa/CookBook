@@ -7,13 +7,11 @@ let UserSchema = new mongoose.Schema({
 	creationDate: {type: Date, default: Date.now},
   followers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
 	followings: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+	followingsBoards: [{type: mongoose.Schema.Types.ObjectId, ref: 'Board'}],
+	followingsTags: [{type: mongoose.Schema.Types.ObjectId, ref: 'Hashtag'}],
 	likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'}],
-	recipes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'}]
-});
-
-let FollowingSchema = new mongoose.Schema({
-	food: {type: mongoose.Schema.Types.ObjectId, ref: 'Food'},
-	type: String
+	recipes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'}],
+	boards: [{type: mongoose.Schema.Types.ObjectId, ref: 'Board'}]
 });
 
 const User = mongoose.model('User', UserSchema);
