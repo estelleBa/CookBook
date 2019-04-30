@@ -92,9 +92,10 @@ router.route('/create')
   							).exec(function(err, doc){
   								if(err) res.status(500).json({res : err});
   								else {
-                    if(body.board !== undefined && body.board !== '') {
-        							addToBoard(body.board, recipe_id);
-                    }
+                    // if(body.board !== undefined && body.board !== '') {
+        						// 	addToBoard(body.board, recipe_id);
+                    // }
+										// SELECT A BOARD AFTER RECIPE CREATION
                     res.status(200).json({res : 200});
                   }
   							});

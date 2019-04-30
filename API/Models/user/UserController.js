@@ -11,6 +11,8 @@ router.use(bodyParser.json());
 let bcrypt = require('bcrypt');
 
 let UserModel = require('./User');
+let RecipeModel = require('../recipe/Recipe');
+let BoardModel = require('../board/Board');
 
 ////////////////////////////////////////////////////////////////////////////////
 // USERS
@@ -57,18 +59,27 @@ router.route('/create')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/find/:id')
-// find user by id
+router.route('/search/:text')
+// search user
 .get(function(req, res){
-  if(isLoggedIn(req)){
-    let ObjectId = mongoose.Types.ObjectId(req.params.id);
-    UserModel.User.findOne({ _id : ObjectId}).exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-			else if(!doc) res.status(404).json({res : 404});
-			else res.status(200).json({user : doc});
-    });
-  }
-  else res.status(401).json({res : 401});
+	UserModel.User.find({ login : { $regex : req.params.text }}).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+    else res.status(200).json({res : doc});
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/show/:id')
+// show user
+.get(function(req, res){
+  UserModel.User.findOne({ _id : req.params.id })
+	.populate({
+			path: 'followers followings likes recipes'
+	}).exec(function(err, doc){
+		if(err) res.status(500).json({res : err});
+    else res.status(200).json({res : doc});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
