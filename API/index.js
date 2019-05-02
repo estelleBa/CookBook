@@ -13,9 +13,13 @@ app.use(session({
 
 let UserController = require('./Models/user/UserController');
 let RecipeController = require('./Models/recipe/RecipeController');
+let CategoryController = require('./Models/category/CategoryController');
+let BoardController = require('./Models/board/BoardController');
 
 app.use('/users', UserController);
 app.use('/recipes', RecipeController);
+app.use('/categories', CategoryController);
+app.use('/boards', BoardController);
 
 let server = app.listen(8000, function(){
   let port = server.address().port

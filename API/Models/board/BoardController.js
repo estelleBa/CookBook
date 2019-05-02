@@ -9,7 +9,7 @@ router.use(bodyParser.json());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-let BoardModel = require('./board');
+let BoardModel = require('./Board');
 let RecipeModel = require('../recipe/Recipe');
 let UserModel = require('../user/User');
 let CategoryModel = require('../category/Category');
@@ -29,6 +29,21 @@ router.route('/')
 
 ////////////////////////////////////////////////////////////////////////////////
 
+router.route('/list')
+// get user boards
+.get(function(req, res){
+	const user_id = isLoggedIn(req);
+  if(user_id){
+	  BoardModel.Board.find({ admin : user_id }).exec(function(err, doc){
+			if(err) res.status(500).json({res : err});
+	    else res.status(200).json({res : doc});
+	  });
+	}
+	else res.status(401).json({res : 401});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 router.route('/create')
 // create board
 .post(function(req, res){
@@ -43,6 +58,7 @@ router.route('/create')
 			newBoard.save(function(err){
 				if(err) res.status(500).json({res : err});
 				else res.status(200).json({res : 200});
+			});
 		}
 		else res.json({res : 0});
 	}
@@ -109,10 +125,10 @@ router.route('/show/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/search/:text')
+router.route('/search')
 // search boards
-.get(function(req, res){
-	BoardModel.Board.find({ name : { $regex : req.params.text }}).exec(function(err, doc){
+.post(function(req, res){
+	BoardModel.Board.find({ name : { $regex : req.body.text }}).exec(function(err, doc){
 		if(err) res.status(500).json({res : err});
     else res.status(200).json({res : doc});
   });
@@ -130,38 +146,27 @@ router.route('/delete/:id')
       if(err) res.status(500).json({res : err});
       else if(!doc) res.status(404).json({res : 404});
       else {
-              BoardModel.Board.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-                if(err) res.status(500).json({res : err});
-                else {
-                  UserModel.User.updateMany(
-                    { },
-                    { $pull: { boards: ObjectId }
-                  ).exec(function(err, doc){
-                    if(err) res.status(500).json({res : err});
-                    else {
-                      RecipeModel.Recipe.updateMany(
-                        { },
-                        { $pull: { boards: ObjectId } }
-                      ).exec(function(err, doc){
-                        if(err) res.status(500).json({res : err});
-                        else {
-                          // RecipeModel.Recipe.updateMany(
-                          //   { },
-                          //   { $pull: { recipes: ObjectId } }
-                          // ).exec(function(err, doc){
-                          //   if(err) res.status(500).json({res : err});
-                          //   else {
-													// 		RecipeModel.Ingredient.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-													// 			if(err) res.status(500).json({res : err});
-													// 		});
-                          //   }
-                          });
-                        }
-                      });
-                    }
-                  });
-                }
-              });
+        BoardModel.Board.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+          if(err) res.status(500).json({res : err});
+          else {
+            UserModel.User.updateMany(
+              { },
+              { $pull: { boards: ObjectId, followingsBoards: ObjectId } }
+            ).exec(function(err, doc){
+              if(err) res.status(500).json({res : err});
+              else {
+                RecipeModel.Recipe.updateMany(
+                  { },
+                  { $pull: { boards: ObjectId } }
+                ).exec(function(err, doc){
+                  if(err) res.status(500).json({res : err});
+                  else res.status(200).json({res : doc});
+                });
+              }
+            });
+          }
+        });
+			}
     });
   }
   else res.status(401).json({res : 401});

@@ -251,13 +251,58 @@ router.route('/show/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/search/:text')
+router.route('/search')
 // search recipes
 .get(function(req, res){
-	RecipeModel.Recipe.find({ title : { $regex : req.params.text }}).exec(function(err, doc){
+	RecipeModel.Recipe.find({ title : { $regex : req.body.text }}).exec(function(err, doc){
 		if(err) res.status(500).json({res : err});
     else res.status(200).json({res : doc});
   });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/like')
+// like recipes
+.post(function(req, res){
+	const user_id = isLoggedIn(req);
+  if(user_id){
+    const ObjectId = mongoose.Types.ObjectId(req.body.id);
+		const UserObjectId = mongoose.Types.ObjectId(user_id);
+		RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { likes: UserObjectId } }).exec(function(err, doc){
+			if(err) res.status(500).json({res : err});
+	    else res.status(200).json({res : doc});
+	  });
+	}
+	else res.status(401).json({res : 401});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/note')
+// note recipes
+.post(function(req, res){
+	const user_id = isLoggedIn(req);
+  if(user_id){
+    const ObjectId = mongoose.Types.ObjectId(req.body.id);
+		const body = req.body;
+		let newGrade = new RecipeModel.Grade({
+			user: user_id,
+			recipe: ObjectId,
+			grade: body.grade,
+			comment: body.comment
+		});
+		newGrade.save(function(err, grade){
+			if(err) res.status(500).json({res : err});
+			else {
+				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { grades: grade._id } }).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else res.status(200).json({res : 200});
+				});
+			}
+		});
+	}
+	else res.status(401).json({res : 401});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,8 +330,8 @@ function insertFood(food, recipe_id){
   });
 }
 
-function insertIngredient(ingredient, ingredient_id, recipe_id){
-	let ObjectId = mongoose.Types.ObjectId(ingredient_id);
+function insertIngredient(ingredient, food_id, recipe_id){
+	let ObjectId = mongoose.Types.ObjectId(food_id);
 	let newIngredient = new RecipeModel.Ingredient({
 		food: ObjectId,
 		quantity: ingredient.quantity,

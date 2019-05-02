@@ -59,10 +59,11 @@ router.route('/create')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/search/:text')
+router.route('/search')
 // search user
-.get(function(req, res){
-	UserModel.User.find({ login : { $regex : req.params.text }}).exec(function(err, doc){
+.post(function(req, res){
+	const user_id = isLoggedIn(req);
+	UserModel.User.find({ login : { $regex : req.body.text }, _id: { $ne: user_id } }).exec(function(err, doc){
 		if(err) res.status(500).json({res : err});
     else res.status(200).json({res : doc});
   });
@@ -225,27 +226,44 @@ router.route('/follow')
 						});
 					}
 				});
-
-				// UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
-				// 	if(doc){
-				// 		doc.followings.push(item_id);
-				// 		doc.save();
-				//
-				// 		UserModel.User.findOne({ _id : item_id }).exec(function(err, doc){
-				// 			if(doc){
-				// 				doc.followers.push(user_id);
-				// 				doc.save();
-				// 			}
-				// 		});
-				// 	}
-				// 	res.status(200).json({res : 200});
-				// });
 				break;
 			case 'b':
-
+				UserModel.User.updateOne(
+					{ _id: user_id, followingsBoards: { $ne: item_id } },
+					{ $push: { followingsBoards: item_id } }
+				).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else {
+						BoardModel.Board.updateOne(
+							{ _id: item_id, followers: { $ne: user_id } },
+							{ $push: { followers: user_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								res.status(200).json({res : 200});
+							}
+						});
+					}
+				});
 				break;
 			case '#':
-
+				UserModel.User.updateOne(
+					{ _id: user_id, followingsTags: { $ne: item_id } },
+					{ $push: { followingsTags: item_id } }
+				).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else {
+						RecipeModel.Hashtag.updateOne(
+							{ _id: item_id, followers: { $ne: user_id } },
+							{ $push: { followers: user_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								res.status(200).json({res : 200});
+							}
+						});
+					}
+				});
 				break;
 		}
 	}
@@ -264,13 +282,13 @@ router.route('/unfollow')
 		switch(item_type){
 			case 'u':
 				UserModel.User.updateOne(
-					{ _id: user_id },
+					{ _id: user_id, followings: item_id },
 					{ $pull: { followings: item_id } }
 				).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
 					else {
 						UserModel.User.updateOne(
-							{ _id: item_id },
+							{ _id: item_id, followers: user_id },
 							{ $pull: { followers: user_id } }
 						).exec(function(err, doc){
 							if(err) res.status(500).json({res : err});
@@ -282,10 +300,42 @@ router.route('/unfollow')
 				});
 				break;
 			case 'b':
-
+				UserModel.User.updateOne(
+					{ _id: user_id, followingsBoards: item_id },
+					{ $pull: { followingsBoards: item_id } }
+				).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else {
+						BoardModel.Board.updateOne(
+							{ _id: item_id, followers: user_id },
+							{ $pull: { followers: user_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								res.status(200).json({res : 200});
+							}
+						});
+					}
+				});
 				break;
 			case '#':
-
+				UserModel.User.updateOne(
+					{ _id: user_id, followingsTags: item_id },
+					{ $pull: { followingsTags: item_id } }
+				).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+					else {
+						RecipeModel.Hashtag.updateOne(
+							{ _id: item_id, followers: user_id },
+							{ $pull: { followers: user_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								res.status(200).json({res : 200});
+							}
+						});
+					}
+				});
 				break;
 		}
 	}

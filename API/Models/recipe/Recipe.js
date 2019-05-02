@@ -38,7 +38,7 @@ let GradeSchema = new mongoose.Schema({
 	recipe: {type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'},
   grade: Number,
 	comment: String,
-  addDate: Date
+  addDate: {type: Date, default: Date.now}
 });
 
 let LabelSchema = new mongoose.Schema({
@@ -47,7 +47,8 @@ let LabelSchema = new mongoose.Schema({
 });
 
 let HashtagSchema = new mongoose.Schema({
-	name: String
+	name: String,
+	followers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
 const Recipe = mongoose.model('Recipe', RecipeSchema);
