@@ -209,129 +209,129 @@ router.route('/follow')
 		const item_type = req.body.type;
 		switch(item_type){
 			case 'u':
-				UserModel.User.updateOne(
-					{ _id: user_id, followings: { $ne: item_id } },
-					{ $push: { followings: item_id } }
-				).exec(function(err, doc){
+				UserModel.User.findOne({ _id : user_id , followings : item_id }).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
-					else {
+					else if(!doc){
 						UserModel.User.updateOne(
-							{ _id: item_id, followers: { $ne: user_id } },
-							{ $push: { followers: user_id } }
+							{ _id: user_id },
+							{ $push: { followings: item_id } }
 						).exec(function(err, doc){
 							if(err) res.status(500).json({res : err});
 							else {
-								res.status(200).json({res : 200});
+								UserModel.User.updateOne(
+									{ _id: item_id },
+									{ $push: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 1});
+									}
+								});
+							}
+						});
+					}
+					else {
+						UserModel.User.updateOne(
+							{ _id: user_id },
+							{ $pull: { followings: item_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								UserModel.User.updateOne(
+									{ _id: item_id },
+									{ $pull: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 0});
+									}
+								});
 							}
 						});
 					}
 				});
 				break;
 			case 'b':
-				UserModel.User.updateOne(
-					{ _id: user_id, followingsBoards: { $ne: item_id } },
-					{ $push: { followingsBoards: item_id } }
-				).exec(function(err, doc){
+				UserModel.User.findOne({ _id : user_id , followingsBoards : item_id }).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
-					else {
-						BoardModel.Board.updateOne(
-							{ _id: item_id, followers: { $ne: user_id } },
-							{ $push: { followers: user_id } }
+					else if(!doc){
+						UserModel.User.updateOne(
+							{ _id: user_id },
+							{ $push: { followingsBoards: item_id } }
 						).exec(function(err, doc){
 							if(err) res.status(500).json({res : err});
 							else {
-								res.status(200).json({res : 200});
+								BoardModel.Board.updateOne(
+									{ _id: item_id },
+									{ $push: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 1});
+									}
+								});
 							}
 						});
 					}
-				});
-				break;
-			case '#':
-				UserModel.User.updateOne(
-					{ _id: user_id, followingsTags: { $ne: item_id } },
-					{ $push: { followingsTags: item_id } }
-				).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else {
-						RecipeModel.Hashtag.updateOne(
-							{ _id: item_id, followers: { $ne: user_id } },
-							{ $push: { followers: user_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								res.status(200).json({res : 200});
-							}
-						});
-					}
-				});
-				break;
-		}
-	}
-	else res.status(401).json({res : 401});
-});
-
-////////////////////////////////////////////////////////////////////////////////
-
-router.route('/unfollow')
-// unfollow
-.post(function(req, res){
-	const user_id = isLoggedIn(req);
-	if(user_id){
-		const item_id = mongoose.Types.ObjectId(req.body.id);
-		const item_type = req.body.type;
-		switch(item_type){
-			case 'u':
-				UserModel.User.updateOne(
-					{ _id: user_id, followings: item_id },
-					{ $pull: { followings: item_id } }
-				).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
 					else {
 						UserModel.User.updateOne(
-							{ _id: item_id, followers: user_id },
-							{ $pull: { followers: user_id } }
+							{ _id: user_id },
+							{ $pull: { followingsBoards: item_id } }
 						).exec(function(err, doc){
 							if(err) res.status(500).json({res : err});
 							else {
-								res.status(200).json({res : 200});
-							}
-						});
-					}
-				});
-				break;
-			case 'b':
-				UserModel.User.updateOne(
-					{ _id: user_id, followingsBoards: item_id },
-					{ $pull: { followingsBoards: item_id } }
-				).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else {
-						BoardModel.Board.updateOne(
-							{ _id: item_id, followers: user_id },
-							{ $pull: { followers: user_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								res.status(200).json({res : 200});
+								BoardModel.Board.updateOne(
+									{ _id: item_id },
+									{ $pull: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 0});
+									}
+								});
 							}
 						});
 					}
 				});
 				break;
 			case '#':
-				UserModel.User.updateOne(
-					{ _id: user_id, followingsTags: item_id },
-					{ $pull: { followingsTags: item_id } }
-				).exec(function(err, doc){
+				UserModel.User.findOne({ _id : user_id , followingsTags : item_id }).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
-					else {
-						RecipeModel.Hashtag.updateOne(
-							{ _id: item_id, followers: user_id },
-							{ $pull: { followers: user_id } }
+					else if(!doc){
+						UserModel.User.updateOne(
+							{ _id: user_id },
+							{ $push: { followingsTags: item_id } }
 						).exec(function(err, doc){
 							if(err) res.status(500).json({res : err});
 							else {
-								res.status(200).json({res : 200});
+								RecipeModel.Hashtag.updateOne(
+									{ _id: item_id },
+									{ $push: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 1});
+									}
+								});
+							}
+						});
+					}
+					else {
+						UserModel.User.updateOne(
+							{ _id: user_id },
+							{ $pull: { followingsTags: item_id } }
+						).exec(function(err, doc){
+							if(err) res.status(500).json({res : err});
+							else {
+								RecipeModel.Hashtag.updateOne(
+									{ _id: item_id },
+									{ $pull: { followers: user_id } }
+								).exec(function(err, doc){
+									if(err) res.status(500).json({res : err});
+									else {
+										res.status(200).json({res : 0});
+									}
+								});
 							}
 						});
 					}

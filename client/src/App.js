@@ -1,47 +1,34 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
-import axios from 'axios'
+import Login from './views/home/Login.js';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
-class App extends Component {
-  constructor() {
-    super();
-    this.test = 'null';
-  }
-  _testapi() {
-    // axios.get("http://localhost:8080/users")
-    // .then(function(res){
-    //   console.log(res)
-    // })
-    // .catch(function(err) {
-    //   console.log("Post Error : " +err);
-    // });
-    fetch('http://localhost:8080/users', {mode: 'no-cors'})
-    .then(res => console.log('response: ', res))
-    .catch(console.error)
-  }
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-        <button onClick={this._testapi}>TEST</button>
-        <p>{this.test}</p>
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+function App(){
+	return (
+		<Router>
+			<div>
+				<Header />
+
+				<Route path="/login" component={Login} />
+			</div>
+		</Router>
+	);
+}
+
+function Header() {
+  return (
+    <ul>
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/login">login</Link>
+      </li>
+      <li>
+        <Link to="/register">register</Link>
+      </li>
+    </ul>
+  );
 }
 
 export default App;

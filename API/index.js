@@ -2,9 +2,12 @@ let express = require('express');
 let app = express();
 let db = require('./db');
 let session = require('express-session');
+let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 
 express().use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
   secret: "toto",
   resave: true,

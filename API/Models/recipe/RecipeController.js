@@ -268,11 +268,21 @@ router.route('/like')
 	const user_id = isLoggedIn(req);
   if(user_id){
     const ObjectId = mongoose.Types.ObjectId(req.body.id);
-		const UserObjectId = mongoose.Types.ObjectId(user_id);
-		RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { likes: UserObjectId } }).exec(function(err, doc){
+		RecipeModel.Recipe.findOne({ _id : ObjectId , likes : user_id }).exec(function(err, doc){
 			if(err) res.status(500).json({res : err});
-	    else res.status(200).json({res : doc});
-	  });
+			else if(!doc){
+				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { likes: user_id } }).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+			    else res.status(200).json({res : 1});
+			  });
+			}
+			else {
+				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $pull: { likes: user_id } }).exec(function(err, doc){
+					if(err) res.status(500).json({res : err});
+			    else res.status(200).json({res : 0});
+			  });
+			}
+		});
 	}
 	else res.status(401).json({res : 401});
 });
