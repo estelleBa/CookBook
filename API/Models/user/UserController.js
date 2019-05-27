@@ -139,7 +139,7 @@ router.route('/delete/:id')
 
 router.route('/login')
 // login user
-.post(function(req, res){
+.post(function(req, res){console.log('enter')
   if(!isLoggedIn(req)){
     const body = req.body;
 		let errs = [];
@@ -154,12 +154,13 @@ router.route('/login')
           }
           else errs.push('password');
         }
+				console.log(errs)
         res.status(200).json({res : errs});
       });
     }
-    else res.json({res : 0});
+    else {res.json({res : 0});console.log(0)}
   }
-  else res.status(401).json({res : 401});
+  else {res.status(401).json({res : 401});console.log(401)}
 });
 
 ////////////////////////////////////////////////////////////////////////////////
