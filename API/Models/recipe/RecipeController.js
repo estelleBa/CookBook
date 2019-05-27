@@ -205,7 +205,6 @@ router.route('/update/:id')
 				RecipeModel.Recipe.findOneAndUpdate({ _id : ObjectId, chef : user_id }, {$set: { image: image, categories: categories }}).exec(function(err, doc){
 					if(err) res.status(500).json({res : err});
 					else {
-            console.log(oldCategories)
             if(body.categories !== undefined){
               const addRecipeToCategories = async() => {
                 for(const category of body.categories){
@@ -251,9 +250,52 @@ router.route('/show/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
+router.route('/research')
+// show recipes with params [ TURN BUTTON OFF IF NO PARAMETERS ]
+.post(function(req, res){
+  const body = req.body;
+  let labels = [];
+  let hashtags = [];
+
+  if(body.labels !== undefined && body.labels.length > 0) {
+    for(let i=0; i<body.labels.length; i++){
+      labels.push({ labels : mongoose.Types.ObjectId(body.labels[i].id) });
+    }
+  }
+  if(body.hashtags !== undefined && body.hashtags.length > 0) {
+    for(let i=0; i<body.hashtags.length; i++){
+      hashtags.push({ hashtags : mongoose.Types.ObjectId(body.hashtags[i].id) });
+    }
+  }
+  let toto = 1;
+  console.log(toto == 0 && ('works'))
+  // (body.categories !== undefined && body.categories !== '') ? { categories : mongoose.Types.ObjectId(body.categories) } : { $ne : { categories : 0 } } ,
+  // (body.labels !== undefined && body.labels.length > 0) ? (body.labels.length > 1) ? { $and: labels } : { labels : mongoose.Types.ObjectId(body.labels[0].id) } : { $ne : { labels : 0 } } ,
+  // (body.hashtags !== undefined && body.hashtags.length > 0) ? (body.hashtags.length > 1) ? { $and: hashtags } : { hashtags : mongoose.Types.ObjectId(body.hashtags[0].id) } : { $ne : { hashtags : 0 } }
+  RecipeModel.Recipe.find(
+    (body.categories !== undefined && body.categories !== '') ? { categories : mongoose.Types.ObjectId(body.categories) } : { categories : { $ne : mongoose.Types.ObjectId(0) } } ,
+    (body.labels !== undefined && body.labels.length > 0) ? (body.labels.length > 1) ? { $and: labels } : { labels : mongoose.Types.ObjectId(body.labels[0].id) } : { labels : { $ne : mongoose.Types.ObjectId(0) } } ,
+    (body.hashtags !== undefined && body.hashtags.length > 0) ? (body.hashtags.length > 1) ? { $and: hashtags } : { hashtags : mongoose.Types.ObjectId(body.hashtags[0].id) } : { hashtags : { $ne : mongoose.Types.ObjectId(0) } }
+  ).exec(function(err, doc){
+    if(err) res.status(500).json({res : err});
+    else {
+      let recipes = [];
+      for(let i = 0; i<doc.length; i++){
+        recipes.push({ _id : mongoose.Types.ObjectId(doc[i]._id) });
+      }
+      console.log(recipes)
+      RecipeModel.Recipe.find({ $or : [{ _id : recipes }] }).exec(function(err, doc){
+        res.status(200).json({res : doc});
+      });
+    }
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 router.route('/search')
 // search recipes
-.get(function(req, res){
+.post(function(req, res){
 	RecipeModel.Recipe.find({ title : { $regex : req.body.text }}).exec(function(err, doc){
 		if(err) res.status(500).json({res : err});
     else res.status(200).json({res : doc});
