@@ -1,7 +1,7 @@
 //import React, { Component } from 'react';
 import axios from 'axios';
 
-const address = 'http://9dd99f6e.ngrok.io';
+const address = 'http://localhost:8000';
 
 export const PostLogin = (login, password) => {
 	let obj = {

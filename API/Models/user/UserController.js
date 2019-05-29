@@ -139,8 +139,8 @@ router.route('/delete/:id')
 
 router.route('/login')
 // login user
-.post(function(req, res){console.log('enter')
-  if(!isLoggedIn(req)){
+.post(function(req, res){
+  if(!isLoggedIn(req)){console.log('go in')
     const body = req.body;
 		let errs = [];
     if(body.login !== undefined && body.login !== '' &&
@@ -160,7 +160,7 @@ router.route('/login')
     }
     else {res.json({res : 0});console.log(0)}
   }
-  else {res.status(401).json({res : 401});console.log(401)}
+  else {res.status(401).json({res : 401});console.log('already in ')}
 });
 
 ////////////////////////////////////////////////////////////////////////////////
