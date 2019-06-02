@@ -150,7 +150,7 @@ router.route('/login')
         else if(doc){
           if(comparePass(body.password, doc.password)){
             req.session.user_id = mongoose.Types.ObjectId(doc._id);
-						res.status(200).json({doc : doc._id});
+						res.status(200).json({doc : doc});
           }
           else res.status(200).json({error : 'bad password'});
         }

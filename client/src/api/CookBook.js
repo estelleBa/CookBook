@@ -4,20 +4,26 @@ import axios from 'axios';
 const address = 'http://localhost:8000';
 
 export const PostLogin = (login, password) => {
-	let obj = {
-		['login']: login,
-		['password']: password
+	if(localStorage.getItem('user') !== null){
+		localStorage.removeItem('user')
+		console.log('already in')
 	}
-	axios.post(address+'/users/login', obj)
-  .then(res => {
-    console.log(res.data);
-		if(res.data.error){
-
+	else {
+		let obj = {
+			['login']: login,
+			['password']: password
 		}
-		else if(res.data.doc){
-
-		}
-	});
+		axios.post(address+'/users/login', obj)
+	  .then(res => {
+			console.log(localStorage.getItem('user'));
+			if(res.data.error){
+				console.log(res.data.error);
+			}
+			else if(res.data.doc){
+				localStorage.setItem('user', res.data.doc.login)
+			}
+		});
+	}
 }
 
 export const GetRecipes = (login, password) => {
