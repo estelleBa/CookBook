@@ -8,10 +8,15 @@ export const PostLogin = (login, password) => {
 		['login']: login,
 		['password']: password
 	}
-	console.log(obj)
 	axios.post(address+'/users/login', obj)
   .then(res => {
     console.log(res.data);
+		if(res.data.error){
+
+		}
+		else if(res.data.doc){
+
+		}
 	});
 }
 

@@ -140,27 +140,25 @@ router.route('/delete/:id')
 router.route('/login')
 // login user
 .post(function(req, res){
-  if(!isLoggedIn(req)){console.log('go in')
+  if(!isLoggedIn(req)){
     const body = req.body;
-		let errs = [];
     if(body.login !== undefined && body.login !== '' &&
     body.password !== undefined && body.password !== '') {
       UserModel.User.findOne({ login: body.login }).exec(function(err, doc){
-				if(err) res.status(500).json({res : err});
-				if(!doc) errs.push('login');
+				if(err) res.status(500).json({error : err});
+				if(!doc) res.status(200).json({error : 'not found'});
         else if(doc){
           if(comparePass(body.password, doc.password)){
             req.session.user_id = mongoose.Types.ObjectId(doc._id);
+						res.status(200).json({doc : doc._id});
           }
-          else errs.push('password');
+          else res.status(200).json({error : 'bad password'});
         }
-				console.log(errs)
-        res.status(200).json({res : errs});
       });
     }
-    else {res.json({res : 0});console.log(0)}
+    else res.status(200).json({error : 0});
   }
-  else {res.status(401).json({res : 401});console.log('already in ')}
+  else res.status(401).json({error : 401});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
