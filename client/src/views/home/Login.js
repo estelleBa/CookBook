@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import {PostLogin} from '../../api/CookBook.js';
+//import Home from './Home.js';
+import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 
 class Login extends Component {
 
@@ -23,7 +25,11 @@ class Login extends Component {
 	handleSubmit = e => {
 		e.preventDefault();
 		if(this.state.login === '' || this.state.password === '') return;
-		PostLogin(this.state.login, this.state.password);
+		PostLogin(this.state.login, this.state.password, function(data){
+			console.log('toto')
+			// return <Redirect to='/Home'/>;
+			//return <Home />;
+		});
 	}
 
 	render() {

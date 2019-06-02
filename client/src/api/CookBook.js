@@ -3,10 +3,11 @@ import axios from 'axios';
 
 const address = 'http://localhost:8000';
 
-export const PostLogin = (login, password) => {
+export const PostLogin = (login, password, callback) => {
 	if(localStorage.getItem('user') !== null){
 		localStorage.removeItem('user')
 		console.log('already in')
+		callback(null);
 	}
 	else {
 		let obj = {
@@ -22,6 +23,7 @@ export const PostLogin = (login, password) => {
 			else if(res.data.doc){
 				localStorage.setItem('user', res.data.doc.login)
 			}
+			callback(res.data);
 		});
 	}
 }
