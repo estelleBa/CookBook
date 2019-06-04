@@ -140,25 +140,27 @@ router.route('/delete/:id')
 router.route('/login')
 // login user
 .post(function(req, res){
-  if(!isLoggedIn(req)){
-    const body = req.body;
-    if(body.login !== undefined && body.login !== '' &&
-    body.password !== undefined && body.password !== '') {
-      UserModel.User.findOne({ login: body.login }).exec(function(err, doc){
-				if(err) res.status(500).json({error : err});
-				if(!doc) res.status(200).json({error : 'not found'});
-        else if(doc){
-          if(comparePass(body.password, doc.password)){
-            req.session.user_id = mongoose.Types.ObjectId(doc._id);
-						res.status(200).json({doc : doc});
-          }
-          else res.status(200).json({error : 'bad password'});
-        }
-      });
-    }
-    else res.status(200).json({error : 0});
-  }
-  else res.status(401).json({error : 401});
+	isLoggedIn(req, function(user_id){
+		if(!user_id){
+			const body = req.body;
+			if(body.login !== undefined && body.login !== '' &&
+			body.password !== undefined && body.password !== '') {
+				UserModel.User.findOne({ login: body.login }).exec(function(err, doc){
+					if(err) res.status(500).json({error : err});
+					if(!doc) res.status(200).json({error : 'not found'});
+					else if(doc){
+						if(comparePass(body.password, doc.password)){
+							req.session.user_id = mongoose.Types.ObjectId(doc._id);
+							res.status(200).json({doc : doc});
+						}
+						else res.status(200).json({error : 'bad password'});
+					}
+				});
+			}
+			else res.status(200).json({error : 0});
+		}
+		else res.status(401).json({error : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -376,8 +378,14 @@ router.route('/followers')
 // 1 = ok
 // 2 = taken
 
-function isLoggedIn(req){
-  return req.session.user_id;
+function isLoggedIn(req, callback){console.log(req.query.id)
+	const user_id = mongoose.Types.ObjectId(req.query.id);
+	UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+		if(err) callback(false);
+		else if(doc) callback(doc._id);
+		else callback(false);
+	});
+  // return true;
 }
 
 function isLoginValid(user_id, login, callback){

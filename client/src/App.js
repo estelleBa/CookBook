@@ -1,36 +1,20 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 import './App.css';
+import Header from './views/Header.js';
 import Login from './views/home/Login.js';
 import Home from './views/home/Home.js';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 function App(){
 	return (
 		<Router>
 			<div>
-				<Header />
-
+				<Route path="/" component={Header} />
 				<Route path="/home" component={Home} />
 				<Route path="/login" component={Login} />
 			</div>
 		</Router>
 	);
-}
-
-function Header() {
-  return (
-    <ul>
-      <li>
-        <Link to="/home">Home</Link>
-      </li>
-      <li>
-        <Link to="/login">login</Link>
-      </li>
-      <li>
-        <Link to="/register">register</Link>
-      </li>
-    </ul>
-  );
 }
 
 export default App;
