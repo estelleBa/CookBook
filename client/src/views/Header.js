@@ -13,13 +13,14 @@ class Header extends Component {
 
 	logout = () => {
 		localStorage.removeItem('user');
+		localStorage.removeItem('user_id');
 		return <Redirect to='/login' />
 	}
 
 	render() {
 		console.log('new header');
-		console.log(localStorage.getItem('user'));
-		if(localStorage.getItem('user') !== null){
+		console.log(localStorage.getItem('user_id'));
+		if(localStorage.getItem('user_id') !== null){
 			return (
 				<ul>
 					<li>

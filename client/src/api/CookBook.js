@@ -8,14 +8,16 @@ export const PostLogin = (login, password) => {
 		'password': password
 	}
 	return axios.post(address+'/users/login', body, {
-		params:{ "id": localStorage.getItem('user') },
+		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
   .then(res => {
+		console.log(res.status)
 		if(res.data.error){
 			console.log(res.data.error);
 		}
 		else if(res.data.doc){
+			localStorage.setItem('user_id', res.data.doc._id)
 			localStorage.setItem('user', res.data.doc)
 		}
 		return res.data;

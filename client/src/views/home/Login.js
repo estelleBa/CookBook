@@ -25,7 +25,7 @@ class Login extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(localStorage.getItem('user') !== null) return;
+		if(localStorage.getItem('user_id') !== null) return;
 		if(this.state.login === '' || this.state.password === '') return;
 		PostLogin(this.state.login, this.state.password).then(data => {
 			if(!data) return;
@@ -47,7 +47,7 @@ class Login extends Component {
 		if(this.state.redirect === true){
 			return <Redirect to={this.state.view} />
 		}
-		else if(localStorage.getItem('user') !== null){
+		else if(localStorage.getItem('user_id') !== null){
 			return <Redirect to='/home' />
 		}
 		else {
