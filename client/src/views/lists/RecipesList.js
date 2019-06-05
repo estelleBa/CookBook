@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 
-class CategoriesList extends Component {
+class RecipesList extends Component {
 
 	constructor(props) {
     super(props);
   }
 
 	render() {
-		const {category} = this.props;
+		const {recipe} = this.props;
 		return (
-			<Link to={'/category/' + category._id}>
+			<Link to={'/recipe/' + recipe._id}>
 				<div>
-				<p>{category.name}</p>
+				<p>{recipe.title}</p>
 				</div>
 			</Link>
 		)
 	}
 }
 
-export default CategoriesList;
+export default RecipesList;

@@ -56,8 +56,8 @@ router.route('/show/:id')
 	.populate({
 			path: 'recipes'
 	}).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
-    else res.status(200).json({res : doc});
+		if(err) res.status(500).json({error : err});
+    else res.status(200).json({doc : doc});
   });
 });
 

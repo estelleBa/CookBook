@@ -18,8 +18,6 @@ class Header extends Component {
 	}
 
 	render() {
-		console.log('new header');
-		console.log(localStorage.getItem('user_id'));
 		if(localStorage.getItem('user_id') !== null){
 			return (
 				<ul>
