@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
-import {PostLogin} from '../../api/CookBook.js';
+import {PostLogin} from '../../api/Users.js';
 
 class Login extends Component {
 
@@ -10,7 +10,8 @@ class Login extends Component {
 			view: '',
 			redirect: false,
 			login: '',
-			password: ''
+			password: '',
+			alert: ''
     }
   }
 
@@ -31,10 +32,20 @@ class Login extends Component {
 			if(!data) return;
 			else {
 				if(data.error){
-					console.log(data.error)
+					if(data.error==='not found'){
+						this.setState({
+							alert: 'login not found'
+						});
+					}
+					else if(data.error==='bad password'){
+						this.setState({
+							alert: 'bad password'
+						});
+					}
 				}
 				else if(data.doc){
 					this.setState({
+						alert: '',
 						view: '/home',
 						redirect: true
 					});
@@ -62,6 +73,7 @@ class Login extends Component {
 		          Password:
 		          <input type="password" name="password" value={this.state.password} onChange={this.handleChange.bind(this)} />
 		        </label>
+						{this.state.alert}
 		        <input type="submit" value="Login" />
 		      </form>
 				</div>

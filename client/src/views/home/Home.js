@@ -1,20 +1,37 @@
 import React, { Component } from 'react';
-import {PostLogin} from '../../api/CookBook.js';
+import {GetCategories} from '../../api/Categories.js';
+import CategoriesList from '../lists/CategoriesList.js';
 
 class Home extends Component {
 
 	constructor(props) {
     super(props);
 		this.state = {
-      login: '',
-			password: ''
+      categories: []
     }
   }
 
+	componentDidMount() {
+    this._getCategories();
+  }
+
+	_getCategories = () => {
+		GetCategories().then(data => {
+			if(!data.doc) return;
+			else {
+				this.setState({
+					categories: data.doc
+				});
+			}
+		});
+	}
 
 	render() {
     return (
-			<div>Home
+			<div>
+				{this.state.categories.map((category) =>
+					<CategoriesList key={category._id} category={category} />
+	      )}
       </div>
     );
   }

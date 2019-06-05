@@ -1,22 +1,18 @@
 import axios from 'axios';
 
-const address = 'http://localhost:8000';
+const address = 'http://localhost:8000/users';
 
 export const PostLogin = (params) => {
 	let body = {
 		'login': params.login,
 		'password': params.password
 	}
-	return axios.post(address+'/users/login', body, {
+	return axios.post(address+'/login', body, {
 		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
   .then(res => {
-		console.log(res.status)
-		if(res.data.error){
-			console.log(res.data.error);
-		}
-		else if(res.data.doc){
+		if(res.data.doc){
 			localStorage.setItem('user_id', res.data.doc._id)
 			localStorage.setItem('user', res.data.doc)
 		}
@@ -30,7 +26,7 @@ export const PostRegister = (params) => {
 		'email': params.email,
 		'password': params.password
 	}
-	return axios.post(address+'/users/create', body, {
+	return axios.post(address+'/create', body, {
 		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
@@ -43,7 +39,7 @@ export const CheckLogin = (param) => {
 	let body = {
 		'login': param
 	}
-	return axios.post(address+'/users/checkLogin', body, {
+	return axios.post(address+'/checkLogin', body, {
 		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
@@ -56,23 +52,11 @@ export const CheckMail = (param) => {
 	let body = {
 		'email': param
 	}
-	return axios.post(address+'/users/checkMail', body, {
+	return axios.post(address+'/checkMail', body, {
 		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
   .then(res => {
 		return res.data;
-	});
-}
-
-export const GetRecipes = (login, password) => {
-	let obj = {
-		['login']: login,
-		['password']: password
-	}
-	console.log(obj)
-	axios.post(address+'/users/login', obj)
-  .then(res => {
-    console.log(res.data);
 	});
 }
