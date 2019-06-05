@@ -35,26 +35,27 @@ router.route('/')
 router.route('/create')
 // create user
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-  if(!user_id){
-		const body = req.body;
-		if(body.login !== undefined && body.login !== '' &&
-		body.email !== undefined && body.email !== ''&&
-		body.password !== undefined && body.password !== '') {
-			let pass = cryptPass(body.password)
-			let newUser = new UserModel.User({
-				login: body.login,
-				email: body.email,
-				password: pass
-			});
-			newUser.save(function(err){
-				if(err) res.status(500).json({res : err});
-				else res.status(200).json({res : 200});
-			});
-		}
-		else res.json({res : 0});
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		if(!user_id){
+			const body = req.body;
+			if(body.login !== undefined && body.login !== '' &&
+			body.email !== undefined && body.email !== ''&&
+			body.password !== undefined && body.password !== '') {
+				let pass = cryptPass(body.password)
+				let newUser = new UserModel.User({
+					login: body.login,
+					email: body.email,
+					password: pass
+				});
+				newUser.save(function(err){
+					if(err) res.status(500).json({error : err});
+					else res.status(200).json({doc : true});
+				});
+			}
+			else res.json({doc : false});
+	  }
+  	else res.status(401).json({error : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +158,7 @@ router.route('/login')
 					}
 				});
 			}
-			else res.status(200).json({error : 0});
+			else res.status(200).json({error : false});
 		}
 		else res.status(401).json({error : 401});
 	});
@@ -180,9 +181,10 @@ router.route('/logout')
 router.route('/checkLogin')
 // check login
 .post(function(req, res){
+	const user_id = mongoose.Types.ObjectId(req.query.id);
 	const login = req.body.login;
-	isLoginValid(isLoggedIn(req), login, function(validity){
-		res.json({res : validity});
+	isLoginValid(user_id, login, function(validity){
+		res.json({doc : validity});
 	});
 });
 
@@ -191,9 +193,10 @@ router.route('/checkLogin')
 router.route('/checkMail')
 // check email
 .post(function(req, res){
+	const user_id = mongoose.Types.ObjectId(req.query.id);
 	const email = req.body.email;
-	isMailValid(isLoggedIn(req), email, function(validity){
-		res.json({res : validity});
+	isMailValid(user_id, email, function(validity){
+		res.json({doc : validity});
 	});
 });
 
@@ -378,7 +381,7 @@ router.route('/followers')
 // 1 = ok
 // 2 = taken
 
-function isLoggedIn(req, callback){console.log(req.query.id)
+function isLoggedIn(req, callback){
 	const user_id = mongoose.Types.ObjectId(req.query.id);
 	UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
 		if(err) callback(false);
@@ -392,9 +395,8 @@ function isLoginValid(user_id, login, callback){
 	let query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, login: login }) : UserModel.User.find({ login: login });
 
   query.exec(function(err, doc){
-    if(doc.length > 0) validity=2;
-    else validity=1;
-    callback(validity);
+    if(doc.length > 0) callback(false);
+    else callback(true);
   });
 }
 
@@ -404,12 +406,11 @@ function isMailValid(user_id, email, callback){
 		let query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, email: email }) : UserModel.User.find({ email: email });
 
 		query.exec(function(err, doc){
-	    if(doc.length > 0) validity=2;
-	    else validity=1;
-	    callback(validity);
+	    if(doc.length > 0) callback(false);
+	    else callback(true);
 	  });
 	}
-	else callback(0);
+	else callback(false);
 }
 
 function cryptPass(password){

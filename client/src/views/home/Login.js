@@ -27,7 +27,7 @@ class Login extends Component {
 		e.preventDefault();
 		if(localStorage.getItem('user_id') !== null) return;
 		if(this.state.login === '' || this.state.password === '') return;
-		PostLogin(this.state.login, this.state.password).then(data => {
+		PostLogin({'login':this.state.login, 'password':this.state.password}).then(data => {
 			if(!data) return;
 			else {
 				if(data.error){
