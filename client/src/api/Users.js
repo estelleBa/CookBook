@@ -14,7 +14,7 @@ export const PostLogin = (params) => {
   .then(res => {
 		if(res.data.doc){
 			localStorage.setItem('user_id', res.data.doc._id)
-			localStorage.setItem('user', res.data.doc)
+			localStorage.setItem('user', JSON.stringify(res.data.doc))
 		}
 		return res.data;
 	});

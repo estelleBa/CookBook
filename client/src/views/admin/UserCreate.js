@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from "react-router-dom";
-import {PostRegister, CheckLogin, CheckMail} from '../../api/Users.js';
+import { Redirect } from "react-router-dom";
+import {PostRegister2, CheckLogin2, CheckMail2} from '../../api/Admin.js';
 
-class Register extends Component {
+class AdminUserCreate extends Component {
 
 	constructor(props) {
     super(props);
 		this.state = {
-			view: '',
-			redirect: false,
 			login: '',
 			email: '',
 			password: '',
 			password2: '',
+			status: 0,
 			isLoginValid: false,
 			isMailValid: false,
 			isPassValid: false,
+			isStatusValid: true,
 			loginAlert: '',
 			mailAlert: '',
-			passAlert: ''
+			passAlert: '',
+			statusAlert: ''
     }
   }
 
@@ -30,7 +31,7 @@ class Register extends Component {
 			});
 		}
 		else {
-			CheckLogin(value).then(data => {
+			CheckLogin2(value).then(data => {
 				if(!data.doc) return;
 				if(data.doc === false){
 					this.setState({
@@ -56,7 +57,7 @@ class Register extends Component {
 			});
 		}
 		else {
-			CheckMail(value).then(data => {
+			CheckMail2(value).then(data => {
 				if(!data.doc) return;
 				if(data.doc === false){
 					this.setState({
@@ -97,6 +98,21 @@ class Register extends Component {
 		}
 	}
 
+	_checkStatus = (value) => {
+		if(value !== 0 || value !== 1){
+			this.setState({
+				statusAlert: 'has to be 1 or 0 (1 = administrator)',
+				isStatusValid: false
+			});
+		}
+		else {
+			this.setState({
+				statusAlert: '',
+				isStatusValid: true
+			});
+		}
+	}
+
 	handleChange = e => {
 		const name = e.target.name;
     const value = e.target.value;
@@ -114,24 +130,24 @@ class Register extends Component {
 		else if(name==='password2'){
 			this._checkPass(value);
 		}
+		else if(name==='status'){
+			this._checkStatus(value);
+		}
   }
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(localStorage.getItem('user_id') !== null) return;
-		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true){
-			PostRegister({'login':this.state.login, 'email':this.state.email, 'password':this.state.password}).then(data => {
-				return <Redirect to='/login' />
+		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
+			PostRegister2({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
+				return (<div>toto</div>);
 			});
 		}
 		else return;
 	}
 
 	render() {
-		if(localStorage.getItem('user_id') !== null){
-			return <Redirect to='/home' />
-		}
-		else {
+		let user = JSON.parse(localStorage.getItem('user'));
+		if(localStorage.getItem('user_id') !== null && user.status === 1){
 	    return (
 				<div>
 					<form onSubmit={this.handleSubmit}>
@@ -154,12 +170,20 @@ class Register extends Component {
 		          <input type="password" name="password2" value={this.state.password2} onChange={this.handleChange.bind(this)} />
 							{this.state.passAlert}
 		        </label>
+						<label>
+		          Status:
+		          <input type="number" name="status" value={this.state.satus} onChange={this.handleChange.bind(this)} />
+							{this.state.statusAlert}
+		        </label>
 		        <input type="submit" value="Register" />
 		      </form>
 				</div>
 	    );
 		}
+		else {
+			return <Redirect to='/home' />
+		}
   }
 }
 
-export default Register;
+export default AdminUserCreate;

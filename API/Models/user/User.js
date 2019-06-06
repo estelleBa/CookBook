@@ -11,7 +11,8 @@ let UserSchema = new mongoose.Schema({
 	followingsTags: [{type: mongoose.Schema.Types.ObjectId, ref: 'Hashtag'}],
 	likes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'}],
 	recipes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'}],
-	boards: [{type: mongoose.Schema.Types.ObjectId, ref: 'Board'}]
+	boards: [{type: mongoose.Schema.Types.ObjectId, ref: 'Board'}],
+	status: {type: Number, default: 0}
 });
 
 const User = mongoose.model('User', UserSchema);

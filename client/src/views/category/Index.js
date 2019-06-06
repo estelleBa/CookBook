@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {GetCategories} from '../../api/Categories.js';
 import CategoriesList from '../lists/CategoriesList.js';
 
-class CategoriesIndex extends Component {
+class CategoryIndex extends Component {
 
 	constructor(props) {
     super(props);
@@ -37,4 +37,4 @@ class CategoriesIndex extends Component {
   }
 }
 
-export default CategoriesIndex;
+export default CategoryIndex;

@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 class Header extends Component {
 
 	constructor(props) {
     super(props);
-		this.state = {
-			view: '',
-			redirect: false
-    }
   }
 
 	logout = () => {
@@ -19,16 +15,34 @@ class Header extends Component {
 
 	render() {
 		if(localStorage.getItem('user_id') !== null){
-			return (
-				<ul>
-					<li>
-						<Link to="/home">Home</Link>
-					</li>
-					<li>
-						<Link to="/login" onClick={this.logout}>Logout</Link>
-					</li>
-				</ul>
-			);
+			let user = JSON.parse(localStorage.getItem('user'));
+			if(user.status === 1){
+				return (
+					<ul>
+						<li>
+							<Link to="/admin">Admin</Link>
+						</li>
+						<li>
+							<Link to="/home">Home</Link>
+						</li>
+						<li>
+							<Link to="/login" onClick={this.logout}>Logout</Link>
+						</li>
+					</ul>
+				);
+			}
+			else {
+				return (
+					<ul>
+						<li>
+							<Link to="/home">Home</Link>
+						</li>
+						<li>
+							<Link to="/login" onClick={this.logout}>Logout</Link>
+						</li>
+					</ul>
+				);
+			}
 		}
 		else {
 			return (

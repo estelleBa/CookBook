@@ -169,11 +169,13 @@ router.route('/login')
 router.route('/logout')
 // logout user
 .get(function(req, res){
-  if(isLoggedIn(req)){
-    req.session.destroy();
-    res.status(200).json({res : 200});
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		if(user_id){
+    	req.session.destroy();
+    	res.status(200).json({res : 200});
+		}
+		else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -382,12 +384,15 @@ router.route('/followers')
 // 2 = taken
 
 function isLoggedIn(req, callback){
-	const user_id = mongoose.Types.ObjectId(req.query.id);
-	UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
-		if(err) callback(false);
-		else if(doc) callback(doc._id);
-		else callback(false);
-	});
+	if(req.query.id===undefined) callback(false);
+	else {
+		const user_id = mongoose.Types.ObjectId(req.query.id);
+		UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+			if(err) callback(false);
+			else if(doc) callback(doc._id);
+			else callback(false);
+		});
+	}
   // return true;
 }
 
