@@ -75,11 +75,13 @@ router.route('/create')
 router.route('/search')
 // search user
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-	UserModel.User.find({ login : { $regex : req.body.text }, _id: { $ne: user_id } }).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
-    else res.status(200).json({res : doc});
-  });
+	isLoggedIn(req, function(user_id){
+		UserModel.User.find({ login : { $regex : req.body.login }, _id: { $ne: user_id } }).exec(function(err, doc){
+			if(err){ res.status(500).json({error : err}); console.log(err);}
+			else if(!doc) res.status(200).json({doc : false});
+	    else res.status(200).json({doc : doc});
+	  });
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,24 +103,31 @@ router.route('/show/:id')
 router.route('/update/:id')
 // update user
 .put(function(req, res){
-	const user_id = isLoggedIn(req);
-	const ObjectId = mongoose.Types.ObjectId(req.params.id);
-  if(user_id==ObjectId){
-		const body = req.body;
-    UserModel.User.findOne({ _id : user_id}).exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-			if(!doc) res.status(404).json({res : 404});
-			else {
-				let login = (body.login !== undefined && body.login !== '') ? body.login : doc.login;
-				let email = (body.email !== undefined && body.email !== '') ? body.email : doc.email;
-				UserModel.User.findOneAndUpdate({ _id : user_id}, {$set: {login: login, email: email}}).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else res.status(200).json({res : 200});
-	      });
-			}
-    });
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		const ObjectId = mongoose.Types.ObjectId(req.params.id);
+	  if(user_id==ObjectId || req.query.admin){
+			const body = req.body;
+	    UserModel.User.findOne({ _id : ObjectId }).exec(function(err, doc){
+				if(err) res.status(500).json({error : err});
+				if(!doc) res.status(404).json({error : 404});
+				else {
+					let login = (body.login !== undefined && body.login !== '') ? body.login : doc.login;
+					let email = (body.email !== undefined && body.email !== '') ? body.email : doc.email;
+					if(body.password !== undefined && body.password !== ''){
+						let pass = cryptPass(body.password);
+					}
+					else {
+						let pass = doc.password;
+					}
+					UserModel.User.findOneAndUpdate({ _id : ObjectId}, {$set: {login: login, email: email, password: pass}}).exec(function(err, doc){
+						if(err) res.status(500).json({error : err});
+						else res.status(200).json({doc : 200});
+		      });
+				}
+	    });
+	  }
+	  else res.status(401).json({error : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////

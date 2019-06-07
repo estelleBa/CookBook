@@ -7,12 +7,22 @@ class AdminIndex extends Component {
     super(props);
   }
 
+	_alertStyle = (type) => {
+		let color;
+		switch(type) {
+			case 'info': color='#d8f1ff'; break;
+		}
+		return {
+     backgroundColor: color
+   }
+	}
+
 	render() {
 		let user = JSON.parse(localStorage.getItem('user'));
-		if(localStorage.getItem('user_id') !== null && user.status === 1){
+		if(user !== null && user.status === 1){
 	    return (
 				<div>
-					{ (this.props.location.alert === undefined) ? '' : <div>{ this.props.location.alert }</div> }
+					{ (this.props.location.alert === undefined) ? '' : <div style={this._alertStyle(this.props.location.alertType)}>{ this.props.location.alert }</div> }
 					<div>
 						<ul>
 							<li>

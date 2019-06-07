@@ -9,10 +9,10 @@ class AdminRecipeCreate extends Component {
 
 	render() {
 		let user = JSON.parse(localStorage.getItem('user'));
-		if(localStorage.getItem('user_id') !== null && user.status === 1){
+		if(user !== null && user.status === 1){
 	    return (
 				<div>
-				
+
 				</div>
 	    );
 		}

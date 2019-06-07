@@ -18,6 +18,22 @@ export const PostRegister = (params) => {
 	});
 }
 
+export const PutUpdate = (param) => {
+}
+
+export const PostSearch = (param) => {
+	let body = {
+		'login': param
+	}
+	return axios.post(address+'/users/search', body, {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}
+
 export const CheckLogin = (param) => {
 	let body = {
 		'login': param
