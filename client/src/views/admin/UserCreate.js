@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {PostRegister2, CheckLogin2, CheckMail2} from '../../api/Admin.js';
+import {PostRegister, CheckLogin, CheckMail} from '../../api/Admin.js';
 
 class AdminUserCreate extends Component {
 
 	constructor(props) {
     super(props);
 		this.state = {
+			redirect: false,
 			login: '',
 			email: '',
 			password: '',
@@ -31,20 +32,20 @@ class AdminUserCreate extends Component {
 			});
 		}
 		else {
-			CheckLogin2(value).then(data => {
-				if(!data.doc) return;
+			CheckLogin(value).then(data => {
 				if(data.doc === false){
 					this.setState({
 						loginAlert: 'login already exists',
 						isLoginValid: false
 					});
 				}
-				else {
+				else if(data.doc === true) {
 					this.setState({
 						loginAlert: '',
 						isLoginValid: true
 					});
 				}
+				else return;
 			});
 		}
 	}
@@ -57,20 +58,20 @@ class AdminUserCreate extends Component {
 			});
 		}
 		else {
-			CheckMail2(value).then(data => {
-				if(!data.doc) return;
+			CheckMail(value).then(data => {
 				if(data.doc === false){
 					this.setState({
 						mailAlert: 'email not valid',
 						isMailValid: false
 					});
 				}
-				else {
+				else if(data.doc === true) {
 					this.setState({
 						mailAlert: '',
 						isMailValid: true
 					});
 				}
+				else return;
 			});
 		}
 	}
@@ -99,16 +100,16 @@ class AdminUserCreate extends Component {
 	}
 
 	_checkStatus = (value) => {
-		if(value !== 0 || value !== 1){
+		if((value == 0 || value == 1) && value.length == 1){
 			this.setState({
-				statusAlert: 'has to be 1 or 0 (1 = administrator)',
-				isStatusValid: false
+				statusAlert: '',
+				isStatusValid: true
 			});
 		}
 		else {
 			this.setState({
-				statusAlert: '',
-				isStatusValid: true
+				statusAlert: 'has to be 1 or 0 (1 = administrator)',
+				isStatusValid: false
 			});
 		}
 	}
@@ -138,8 +139,10 @@ class AdminUserCreate extends Component {
 	handleSubmit = e => {
 		e.preventDefault();
 		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
-			PostRegister2({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
-				return (<div>toto</div>);
+			PostRegister({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
+				this.setState({
+					redirect: true
+				});
 			});
 		}
 		else return;
@@ -147,7 +150,8 @@ class AdminUserCreate extends Component {
 
 	render() {
 		let user = JSON.parse(localStorage.getItem('user'));
-		if(localStorage.getItem('user_id') !== null && user.status === 1){
+		if(this.state.redirect === true) return <Redirect to={{ pathname: '/admin', alert: 'user creation', alertType: 'info' }} />
+		else if(user !== null && user.status === 1){
 	    return (
 				<div>
 					<form onSubmit={this.handleSubmit}>

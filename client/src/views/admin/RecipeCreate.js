@@ -12,6 +12,7 @@ class AdminRecipeCreate extends Component {
 		if(localStorage.getItem('user_id') !== null && user.status === 1){
 	    return (
 				<div>
+				
 				</div>
 	    );
 		}

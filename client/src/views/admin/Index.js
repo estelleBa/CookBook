@@ -12,6 +12,7 @@ class AdminIndex extends Component {
 		if(localStorage.getItem('user_id') !== null && user.status === 1){
 	    return (
 				<div>
+					{ (this.props.location.alert === undefined) ? '' : <div>{ this.props.location.alert }</div> }
 					<div>
 						<ul>
 							<li>

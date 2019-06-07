@@ -36,12 +36,24 @@ router.route('/create')
 // create user
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		if(!user_id){
-			const body = req.body;
-			if(body.login !== undefined && body.login !== '' &&
-			body.email !== undefined && body.email !== ''&&
-			body.password !== undefined && body.password !== '') {
-				let pass = cryptPass(body.password)
+		const body = req.body;
+		if(body.login !== undefined && body.login !== '' &&
+		body.email !== undefined && body.email !== ''&&
+		body.password !== undefined && body.password !== '') {
+			let pass = cryptPass(body.password)
+			if(user_id && req.query.admin){
+				let newUser = new UserModel.User({
+					login: body.login,
+					email: body.email,
+					password: pass,
+					status: body.status
+				});
+				newUser.save(function(err){
+					if(err) res.status(500).json({error : err});
+					else res.status(200).json({doc : true});
+				});
+			}
+			else if(!user_id){
 				let newUser = new UserModel.User({
 					login: body.login,
 					email: body.email,
@@ -52,9 +64,9 @@ router.route('/create')
 					else res.status(200).json({doc : true});
 				});
 			}
-			else res.json({doc : false});
+			else res.status(401).json({error : 401});
 	  }
-  	else res.status(401).json({error : 401});
+		else res.json({doc : false});
 	});
 });
 

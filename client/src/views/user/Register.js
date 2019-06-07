@@ -31,19 +31,19 @@ class Register extends Component {
 		}
 		else {
 			CheckLogin(value).then(data => {
-				if(!data.doc) return;
 				if(data.doc === false){
 					this.setState({
 						loginAlert: 'login already exists',
 						isLoginValid: false
 					});
 				}
-				else {
+				else if(data.doc === true) {
 					this.setState({
 						loginAlert: '',
 						isLoginValid: true
 					});
 				}
+				else return;
 			});
 		}
 	}

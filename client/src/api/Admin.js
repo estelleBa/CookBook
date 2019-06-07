@@ -2,8 +2,7 @@ import axios from 'axios';
 
 const address = 'http://localhost:8000';
 
-
-export const PostRegister2 = (params) => {
+export const PostRegister = (params) => {
 	let body = {
 		'login': params.login,
 		'email': params.email,
@@ -11,7 +10,7 @@ export const PostRegister2 = (params) => {
 		'status': params.status
 	}
 	return axios.post(address+'/users/create', body, {
-		params:{ "id": localStorage.getItem('user_id') },
+		params:{ "id": localStorage.getItem('user_id'), "admin": true },
 		headers:{"Content-Type": "application/json"}
 	})
   .then(res => {
@@ -19,7 +18,7 @@ export const PostRegister2 = (params) => {
 	});
 }
 
-export const CheckLogin2 = (param) => {
+export const CheckLogin = (param) => {
 	let body = {
 		'login': param
 	}
@@ -32,7 +31,7 @@ export const CheckLogin2 = (param) => {
 	});
 }
 
-export const CheckMail2 = (param) => {
+export const CheckMail = (param) => {
 	let body = {
 		'email': param
 	}

@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom
 import './App.css';
 import Header from './views/Header.js';
 import Home from './views/category/Index.js';
-import Login from './views/home/Login.js';
-import Register from './views/home/Register.js';
+import Login from './views/user/Login.js';
+import Register from './views/user/Register.js';
 import RecipeIndex from './views/recipe/Index.js';
 import Admin from './views/admin/Index.js';
 import AdminUserCreate from './views/admin/UserCreate.js';
