@@ -15,6 +15,16 @@ class Login extends Component {
     }
   }
 
+	_alertStyle = (type) => {
+		let color;
+		switch(type) {
+			case 'info': color='#d8f1ff'; break;
+		}
+		return {
+     backgroundColor: color
+   }
+	}
+
 	handleChange = e => {
 		const name = e.target.name;
     const value = e.target.value;
@@ -64,6 +74,7 @@ class Login extends Component {
 		else {
 	    return (
 				<div>
+				{ (this.props.location.alert === undefined) ? '' : <div style={this._alertStyle(this.props.location.alertType)}>{ this.props.location.alert }</div> }
 					<form onSubmit={this.handleSubmit}>
 		        <label>
 		          Login:

@@ -57,7 +57,6 @@ class Register extends Component {
 		}
 		else {
 			CheckMail(value).then(data => {
-				if(!data.doc) return;
 				if(data.doc === false){
 					this.setState({
 						mailAlert: 'email not valid',
@@ -118,17 +117,19 @@ class Register extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(localStorage.getItem('user_id') !== null) return;
 		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true){
 			PostRegister({'login':this.state.login, 'email':this.state.email, 'password':this.state.password}).then(data => {
-				return <Redirect to='/login' />
+				this.setState({
+					redirect: true
+				});
 			});
 		}
 		else return;
 	}
 
 	render() {
-		if(localStorage.getItem('user_id') !== null){
+		if(this.state.redirect === true) return <Redirect to={{ pathname: '/login', alert: 'user creation', alertType: 'info' }} />
+		else if(localStorage.getItem('user_id') !== null){
 			return <Redirect to='/home' />
 		}
 		else {

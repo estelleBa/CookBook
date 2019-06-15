@@ -28,23 +28,25 @@ router.route('/')
 router.route('/create')
 // create category
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-  if(!user_id){
-		const body = req.body;
-		if(body.name !== undefined && body.name !== '' &&
-		body.color !== undefined && body.color !== '') {
-			let newCategory = new CategoryModel.Category({
-				name: body.name,
-				color: body.color
-			});
-			newCategory.save(function(err){
-				if(err) res.status(500).json({res : err});
-				else res.status(200).json({res : 200});
-			});
-		}
-		else res.json({res : 0});
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+    if(user_id){
+  		const body = req.body;
+  		if(body.name !== undefined && body.name !== '' &&
+  		body.color !== undefined && body.color !== '') {
+  			let newCategory = new CategoryModel.Category({
+  				name: body.name,
+  				color: body.color
+  			});
+        console.log('toto')
+  			newCategory.save(function(err){
+  				if(err) res.status(500).json({res : err});
+  				else res.status(200).json({res : 200});
+  			});
+  		}
+  		else res.json({res : 0});
+    }
+    else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +72,17 @@ router.route('/show/:id')
 // 1 = ok
 // 2 = taken
 
-function isLoggedIn(req){
-  return req.session.user_id;
+function isLoggedIn(req, callback){
+	// if(req.query.id===undefined) callback(false);
+	// else {
+	// 	const user_id = mongoose.Types.ObjectId(req.query.id);
+	// 	UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+	// 		if(err) callback(false);
+	// 		else if(doc) callback(doc._id);
+	// 		else callback(false);
+	// 	});
+	// }
+   return true;
 }
 
 module.exports = router;

@@ -21,13 +21,15 @@ let BoardModel = require('../board/Board');
 router.route('/')
 // get users
 .get(function(req, res){
-	if(isLoggedIn(req)){
-    UserModel.User.find({}).exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-      else res.status(200).json({res : doc});
-    });
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		if(user_id){
+	    UserModel.User.find({}).exec(function(err, doc){
+				if(err) res.status(500).json({res : err});
+	      else res.status(200).json({res : doc});
+	    });
+		}
+		else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,37 +38,37 @@ router.route('/create')
 // create user
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		const body = req.body;
-		if(body.login !== undefined && body.login !== '' &&
-		body.email !== undefined && body.email !== ''&&
-		body.password !== undefined && body.password !== '') {
-			let pass = cryptPass(body.password)
-			if(user_id && req.query.admin){
-				let newUser = new UserModel.User({
-					login: body.login,
-					email: body.email,
-					password: pass,
-					status: body.status
-				});
-				newUser.save(function(err){
-					if(err) res.status(500).json({error : err});
-					else res.status(200).json({doc : true});
-				});
-			}
-			else if(!user_id){
-				let newUser = new UserModel.User({
-					login: body.login,
-					email: body.email,
-					password: pass
-				});
-				newUser.save(function(err){
-					if(err) res.status(500).json({error : err});
-					else res.status(200).json({doc : true});
-				});
-			}
-			else res.status(401).json({error : 401});
-	  }
-		else res.json({doc : false});
+			const body = req.body;
+			if(body.login !== undefined && body.login !== '' &&
+			body.email !== undefined && body.email !== ''&&
+			body.password !== undefined && body.password !== '') {
+				let pass = cryptPass(body.password)
+				if(user_id && req.query.admin){
+					let newUser = new UserModel.User({
+						login: body.login,
+						email: body.email,
+						password: pass,
+						status: body.status
+					});
+					newUser.save(function(err){
+						if(err) res.status(500).json({error : err});
+						else res.status(200).json({doc : true});
+					});
+				}
+				else if(!user_id){
+					let newUser = new UserModel.User({
+						login: body.login,
+						email: body.email,
+						password: pass
+					});
+					newUser.save(function(err){
+						if(err) res.status(500).json({error : err});
+						else res.status(200).json({doc : true});
+					});
+				}
+				else res.status(401).json({error : 401});
+		  }
+			else res.json({doc : false});
 	});
 });
 
@@ -76,7 +78,7 @@ router.route('/search')
 // search user
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		UserModel.User.find({ login : { $regex : req.body.login }, _id: { $ne: user_id } }).exec(function(err, doc){
+		UserModel.User.find({ login : { $regex : req.body.login }}).exec(function(err, doc){
 			if(err){ res.status(500).json({error : err}); console.log(err);}
 			else if(!doc) res.status(200).json({doc : false});
 	    else res.status(200).json({doc : doc});
@@ -135,26 +137,27 @@ router.route('/update/:id')
 router.route('/delete/:id')
 // delete user
 .delete(function(req, res){
-	const user_id = isLoggedIn(req);
-	const ObjectId = mongoose.Types.ObjectId(req.params.id);
-  if(user_id==ObjectId){
-    UserModel.User.deleteOne({ _id : user_id }).exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-			else {
-				req.session.destroy();
-				UserModel.User.updateMany(
-					{ },
-					{ $pull: { followings: user_id, followers: user_id } }
-				).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else {
-						res.status(200).json({res : 200});
-					}
-				});
-			}
-    });
-  }
-  else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		const ObjectId = mongoose.Types.ObjectId(req.params.id);
+	  if(user_id==ObjectId){
+	    UserModel.User.deleteOne({ _id : user_id }).exec(function(err, doc){
+				if(err) res.status(500).json({res : err});
+				else {
+					req.session.destroy();
+					UserModel.User.updateMany(
+						{ },
+						{ $pull: { followings: user_id, followers: user_id } }
+					).exec(function(err, doc){
+						if(err) res.status(500).json({res : err});
+						else {
+							res.status(200).json({res : 200});
+						}
+					});
+				}
+	    });
+	  }
+	  else res.status(401).json({res : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,143 +233,144 @@ router.route('/checkMail')
 router.route('/follow')
 // follow
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-	if(user_id){
-		const item_id = mongoose.Types.ObjectId(req.body.id);
-		const item_type = req.body.type;
-		switch(item_type){
-			case 'u':
-				UserModel.User.findOne({ _id : user_id , followings : item_id }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else if(!doc){
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $push: { followings: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								UserModel.User.updateOne(
-									{ _id: item_id },
-									{ $push: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 1});
-									}
-								});
-							}
-						});
-					}
-					else {
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $pull: { followings: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								UserModel.User.updateOne(
-									{ _id: item_id },
-									{ $pull: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 0});
-									}
-								});
-							}
-						});
-					}
-				});
-				break;
-			case 'b':
-				UserModel.User.findOne({ _id : user_id , followingsBoards : item_id }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else if(!doc){
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $push: { followingsBoards: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								BoardModel.Board.updateOne(
-									{ _id: item_id },
-									{ $push: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 1});
-									}
-								});
-							}
-						});
-					}
-					else {
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $pull: { followingsBoards: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								BoardModel.Board.updateOne(
-									{ _id: item_id },
-									{ $pull: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 0});
-									}
-								});
-							}
-						});
-					}
-				});
-				break;
-			case '#':
-				UserModel.User.findOne({ _id : user_id , followingsTags : item_id }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else if(!doc){
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $push: { followingsTags: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								RecipeModel.Hashtag.updateOne(
-									{ _id: item_id },
-									{ $push: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 1});
-									}
-								});
-							}
-						});
-					}
-					else {
-						UserModel.User.updateOne(
-							{ _id: user_id },
-							{ $pull: { followingsTags: item_id } }
-						).exec(function(err, doc){
-							if(err) res.status(500).json({res : err});
-							else {
-								RecipeModel.Hashtag.updateOne(
-									{ _id: item_id },
-									{ $pull: { followers: user_id } }
-								).exec(function(err, doc){
-									if(err) res.status(500).json({res : err});
-									else {
-										res.status(200).json({res : 0});
-									}
-								});
-							}
-						});
-					}
-				});
-				break;
+	isLoggedIn(req, function(user_id){
+    if(user_id){
+			const item_id = mongoose.Types.ObjectId(req.body.id);
+			const item_type = req.body.type;
+			switch(item_type){
+				case 'u':
+					UserModel.User.findOne({ _id : user_id , followings : item_id }).exec(function(err, doc){
+						if(err) res.status(500).json({res : err});
+						else if(!doc){
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $push: { followings: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									UserModel.User.updateOne(
+										{ _id: item_id },
+										{ $push: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 1});
+										}
+									});
+								}
+							});
+						}
+						else {
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $pull: { followings: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									UserModel.User.updateOne(
+										{ _id: item_id },
+										{ $pull: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 0});
+										}
+									});
+								}
+							});
+						}
+					});
+					break;
+				case 'b':
+					UserModel.User.findOne({ _id : user_id , followingsBoards : item_id }).exec(function(err, doc){
+						if(err) res.status(500).json({res : err});
+						else if(!doc){
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $push: { followingsBoards: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									BoardModel.Board.updateOne(
+										{ _id: item_id },
+										{ $push: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 1});
+										}
+									});
+								}
+							});
+						}
+						else {
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $pull: { followingsBoards: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									BoardModel.Board.updateOne(
+										{ _id: item_id },
+										{ $pull: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 0});
+										}
+									});
+								}
+							});
+						}
+					});
+					break;
+				case '#':
+					UserModel.User.findOne({ _id : user_id , followingsTags : item_id }).exec(function(err, doc){
+						if(err) res.status(500).json({res : err});
+						else if(!doc){
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $push: { followingsTags: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									RecipeModel.Hashtag.updateOne(
+										{ _id: item_id },
+										{ $push: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 1});
+										}
+									});
+								}
+							});
+						}
+						else {
+							UserModel.User.updateOne(
+								{ _id: user_id },
+								{ $pull: { followingsTags: item_id } }
+							).exec(function(err, doc){
+								if(err) res.status(500).json({res : err});
+								else {
+									RecipeModel.Hashtag.updateOne(
+										{ _id: item_id },
+										{ $pull: { followers: user_id } }
+									).exec(function(err, doc){
+										if(err) res.status(500).json({res : err});
+										else {
+											res.status(200).json({res : 0});
+										}
+									});
+								}
+							});
+						}
+					});
+					break;
+			}
 		}
-	}
-	else res.status(401).json({res : 401});
+		else res.status(401).json({res : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -374,14 +378,15 @@ router.route('/follow')
 router.route('/following')
 // get followings
 .get(function(req, res){
-	const user_id = isLoggedIn(req);
-	if(user_id){
-		UserModel.User.findOne({ _id: user_id }).populate('followings').exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-      else res.status(200).json({res : doc});
-    });
-	}
-	else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+    if(user_id){
+			UserModel.User.findOne({ _id: user_id }).populate('followings').exec(function(err, doc){
+				if(err) res.status(500).json({res : err});
+	      else res.status(200).json({res : doc});
+	    });
+		}
+		else res.status(401).json({res : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,14 +394,15 @@ router.route('/following')
 router.route('/followers')
 // get followers
 .get(function(req, res){
-	const user_id = isLoggedIn(req);
-	if(user_id){
-		UserModel.User.findOne({ _id: user_id }).populate('followers').exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-      else res.status(200).json({res : doc});
-    });
-	}
-	else res.status(401).json({res : 401});
+	isLoggedIn(req, function(user_id){
+		if(user_id){
+			UserModel.User.findOne({ _id: user_id }).populate('followers').exec(function(err, doc){
+				if(err) res.status(500).json({res : err});
+	      else res.status(200).json({res : doc});
+	    });
+		}
+		else res.status(401).json({res : 401});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -32,82 +32,83 @@ router.route('/')
 router.route('/create')
 // create recipe
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-  if(user_id){
-		const body = req.body;
-		if(body.title !== undefined && body.title !== '' &&
-		body.quantity !== undefined && body.quantity !== '' &&
-		body.ingredients !== undefined && body.ingredients.length > 0 &&
-		body.steps !== undefined && body.steps.length > 0 &&
-    body.categories !== undefined && body.categories.length > 0) {
-			let newRecipe = new RecipeModel.Recipe({
-				title: body.title,
-				image: body.image,
-				quantity: body.quantity,
-				time: body.time,
-				chef: user_id
-			});
-			newRecipe.save(function(err){
-				if(err) res.status(500).json({res : err});
-				else {
-					let recipe_id = mongoose.Types.ObjectId(newRecipe._id);
+  isLoggedIn(req, function(user_id){
+    if(user_id){
+  		const body = req.body;
+  		if(body.title !== undefined && body.title !== '' &&
+  		body.quantity !== undefined && body.quantity !== '' &&
+  		body.ingredients !== undefined && body.ingredients.length > 0 &&
+  		body.steps !== undefined && body.steps.length > 0 &&
+      body.categories !== undefined && body.categories.length > 0) {
+  			let newRecipe = new RecipeModel.Recipe({
+  				title: body.title,
+  				image: body.image,
+  				quantity: body.quantity,
+  				time: body.time,
+  				chef: user_id
+  			});
+  			newRecipe.save(function(err){
+  				if(err) res.status(500).json({res : err});
+  				else {
+  					let recipe_id = mongoose.Types.ObjectId(newRecipe._id);
 
-					const insertFoods = async() => {
-						for(const ingredient of body.ingredients){
-							await insertFood(ingredient, recipe_id);
-						}
-					}
-					insertFoods().then(() => {
-						const insertSteps = async() => {
-							for(const step of body.steps){
-								await insertStep(step, recipe_id);
-							}
-						}
-						insertSteps().then(() => {
-              const addCategories = async() => {
-  							for(const category of body.categories){
-  								await addCategory(category, recipe_id);
+  					const insertFoods = async() => {
+  						for(const ingredient of body.ingredients){
+  							await insertFood(ingredient, recipe_id);
+  						}
+  					}
+  					insertFoods().then(() => {
+  						const insertSteps = async() => {
+  							for(const step of body.steps){
+  								await insertStep(step, recipe_id);
   							}
   						}
-              addCategories().then(() => {
-                if(body.labels !== undefined && body.labels.length > 0) {
-                  const addLabels = async() => {
-      							for(const label of body.labels){
-      								await addLabel(label, recipe_id);
-      							}
-      						}
-                  addLabels();
-                }
-                if(body.hashtags !== undefined && body.hashtags.length > 0) {
-                  const addHashtags = async() => {
-      							for(const hashtag of body.hashtags){
-      								await createHashtag(hashtag, recipe_id);
-      							}
-      						}
-                  addHashtags();
-                }
-  							UserModel.User.updateOne(
-  								{ _id: user_id },
-  								{ $push: { recipes: recipe_id } }
-  							).exec(function(err, doc){
-  								if(err) res.status(500).json({res : err});
-  								else {
-                    // if(body.board !== undefined && body.board !== '') {
-        						// 	addToBoard(body.board, recipe_id);
-                    // }
-										// SELECT A BOARD AFTER RECIPE CREATION
-                    res.status(200).json({res : 200});
+  						insertSteps().then(() => {
+                const addCategories = async() => {
+    							for(const category of body.categories){
+    								await addCategory(category, recipe_id);
+    							}
+    						}
+                addCategories().then(() => {
+                  if(body.labels !== undefined && body.labels.length > 0) {
+                    const addLabels = async() => {
+        							for(const label of body.labels){
+        								await addLabel(label, recipe_id);
+        							}
+        						}
+                    addLabels();
                   }
-  							});
-              });
-						});
-					});
-				}
-			});
-		}
-		else res.json({res : 0});
-	}
-	else res.status(401).json({res : 401});
+                  if(body.hashtags !== undefined && body.hashtags.length > 0) {
+                    const addHashtags = async() => {
+        							for(const hashtag of body.hashtags){
+        								await createHashtag(hashtag, recipe_id);
+        							}
+        						}
+                    addHashtags();
+                  }
+    							UserModel.User.updateOne(
+    								{ _id: user_id },
+    								{ $push: { recipes: recipe_id } }
+    							).exec(function(err, doc){
+    								if(err) res.status(500).json({res : err});
+    								else {
+                      // if(body.board !== undefined && body.board !== '') {
+          						// 	addToBoard(body.board, recipe_id);
+                      // }
+  										// SELECT A BOARD AFTER RECIPE CREATION
+                      res.status(200).json({res : 200});
+                    }
+    							});
+                });
+  						});
+  					});
+  				}
+  			});
+  		}
+  		else res.json({res : 0});
+  	}
+  	else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,68 +116,69 @@ router.route('/create')
 router.route('/delete/:id')
 // delete recipe
 .delete (function(req, res){
-  const user_id = isLoggedIn(req);
-  if(user_id){
-    const ObjectId = mongoose.Types.ObjectId(req.params.id);
-    RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
-      if(err) res.status(500).json({res : err});
-      else if(!doc) res.status(404).json({res : 404});
-      else {
-        const rmIngredients = async() => {
-          for(const ingredient of doc.ingredients){
-            await rmIngredient(ingredient._id);
-          }
-        }
-        rmIngredients().then(() => {
-          const rmSteps = async() => {
-            for(const step of doc.steps){
-              await rmStep(step._id);
+  isLoggedIn(req, function(user_id){
+    if(user_id){
+      const ObjectId = mongoose.Types.ObjectId(req.params.id);
+      RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
+        if(err) res.status(500).json({res : err});
+        else if(!doc) res.status(404).json({res : 404});
+        else {
+          const rmIngredients = async() => {
+            for(const ingredient of doc.ingredients){
+              await rmIngredient(ingredient._id);
             }
           }
-          rmSteps().then(() => {
-            const rmGrades = async() => {
-              for(const grade of doc.grades){
-                await rmGrade(grade._id);
+          rmIngredients().then(() => {
+            const rmSteps = async() => {
+              for(const step of doc.steps){
+                await rmStep(step._id);
               }
             }
-            rmGrades().then(() => {
-              RecipeModel.Recipe.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-                if(err) res.status(500).json({res : err});
-                else {
-                  UserModel.User.updateMany(
-                    { },
-                    { $pull: { likes: ObjectId, recipes: ObjectId } }
-                  ).exec(function(err, doc){
-                    if(err) res.status(500).json({res : err});
-                    else {
-                      CategoryModel.Category.updateMany(
-                        { },
-                        { $pull: { recipes: ObjectId } }
-                      ).exec(function(err, doc){
-                        if(err) res.status(500).json({res : err});
-                        else {
-                          BoardModel.Board.updateMany(
-                            { },
-                            { $pull: { recipes: ObjectId } }
-                          ).exec(function(err, doc){
-                            if(err) res.status(500).json({res : err});
-                            else {
-                              res.status(200).json({res : 200});
-                            }
-                          });
-                        }
-                      });
-                    }
-                  });
+            rmSteps().then(() => {
+              const rmGrades = async() => {
+                for(const grade of doc.grades){
+                  await rmGrade(grade._id);
                 }
+              }
+              rmGrades().then(() => {
+                RecipeModel.Recipe.deleteOne({ _id : ObjectId }).exec(function(err, doc){
+                  if(err) res.status(500).json({res : err});
+                  else {
+                    UserModel.User.updateMany(
+                      { },
+                      { $pull: { likes: ObjectId, recipes: ObjectId } }
+                    ).exec(function(err, doc){
+                      if(err) res.status(500).json({res : err});
+                      else {
+                        CategoryModel.Category.updateMany(
+                          { },
+                          { $pull: { recipes: ObjectId } }
+                        ).exec(function(err, doc){
+                          if(err) res.status(500).json({res : err});
+                          else {
+                            BoardModel.Board.updateMany(
+                              { },
+                              { $pull: { recipes: ObjectId } }
+                            ).exec(function(err, doc){
+                              if(err) res.status(500).json({res : err});
+                              else {
+                                res.status(200).json({res : 200});
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                });
               });
             });
           });
-        });
-      }
-    });
-  }
-  else res.status(401).json({res : 401});
+        }
+      });
+    }
+    else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,51 +186,52 @@ router.route('/delete/:id')
 router.route('/update/:id')
 // update recipe
 .put(function(req, res){
-  const user_id = isLoggedIn(req);
-  if(user_id){
-    const ObjectId = mongoose.Types.ObjectId(req.params.id);
-    const body = req.body;
-    RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
-  		if(err) res.status(500).json({res : err});
-      else if(!doc) res.status(404).json({res : 404});
-      else {
-				let image = (body.image !== undefined && body.image !== '') ? body.image : doc.image;
-        let oldCategories = doc.categories;
-        let categories = doc.categories;
-        if(body.categories !== undefined){
-          categories = [];
-          for(const category of body.categories){
-            const ObjectId = mongoose.Types.ObjectId(category.id);
-            categories.push(ObjectId)
+  isLoggedIn(req, function(user_id){
+    if(user_id){
+      const ObjectId = mongoose.Types.ObjectId(req.params.id);
+      const body = req.body;
+      RecipeModel.Recipe.findOne({ _id : ObjectId, chef : user_id }).exec(function(err, doc){
+    		if(err) res.status(500).json({res : err});
+        else if(!doc) res.status(404).json({res : 404});
+        else {
+  				let image = (body.image !== undefined && body.image !== '') ? body.image : doc.image;
+          let oldCategories = doc.categories;
+          let categories = doc.categories;
+          if(body.categories !== undefined){
+            categories = [];
+            for(const category of body.categories){
+              const ObjectId = mongoose.Types.ObjectId(category.id);
+              categories.push(ObjectId)
+            }
           }
-        }
-				RecipeModel.Recipe.findOneAndUpdate({ _id : ObjectId, chef : user_id }, {$set: { image: image, categories: categories }}).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else {
-            if(body.categories !== undefined){
-              const addRecipeToCategories = async() => {
-                for(const category of body.categories){
-                  await addRecipeToCategory(category.id, ObjectId);
-                }
-              }
-              addRecipeToCategories().then(() => {
-                const rmOldRecipeCategories = async() => {
-                  for(const category of oldCategories){
-                    await rmOldRecipeCategory(category._id, ObjectId);
+  				RecipeModel.Recipe.findOneAndUpdate({ _id : ObjectId, chef : user_id }, {$set: { image: image, categories: categories }}).exec(function(err, doc){
+  					if(err) res.status(500).json({res : err});
+  					else {
+              if(body.categories !== undefined){
+                const addRecipeToCategories = async() => {
+                  for(const category of body.categories){
+                    await addRecipeToCategory(category.id, ObjectId);
                   }
                 }
-                rmOldRecipeCategories().then(() => {
-                  res.status(200).json({res : 200});
+                addRecipeToCategories().then(() => {
+                  const rmOldRecipeCategories = async() => {
+                    for(const category of oldCategories){
+                      await rmOldRecipeCategory(category._id, ObjectId);
+                    }
+                  }
+                  rmOldRecipeCategories().then(() => {
+                    res.status(200).json({res : 200});
+                  });
                 });
-              });
+              }
+              else res.status(200).json({res : 200});
             }
-            else res.status(200).json({res : 200});
-          }
-	      });
-      }
-    });
-  }
-  else res.status(401).json({res : 401});
+  	      });
+        }
+      });
+    }
+    else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,26 +310,27 @@ router.route('/search')
 router.route('/like')
 // like recipes
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-  if(user_id){
-    const ObjectId = mongoose.Types.ObjectId(req.body.id);
-		RecipeModel.Recipe.findOne({ _id : ObjectId , likes : user_id }).exec(function(err, doc){
-			if(err) res.status(500).json({res : err});
-			else if(!doc){
-				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { likes: user_id } }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-			    else res.status(200).json({res : 1});
-			  });
-			}
-			else {
-				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $pull: { likes: user_id } }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-			    else res.status(200).json({res : 0});
-			  });
-			}
-		});
-	}
-	else res.status(401).json({res : 401});
+  isLoggedIn(req, function(user_id){
+    if(user_id){
+      const ObjectId = mongoose.Types.ObjectId(req.body.id);
+  		RecipeModel.Recipe.findOne({ _id : ObjectId , likes : user_id }).exec(function(err, doc){
+  			if(err) res.status(500).json({res : err});
+  			else if(!doc){
+  				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { likes: user_id } }).exec(function(err, doc){
+  					if(err) res.status(500).json({res : err});
+  			    else res.status(200).json({res : 1});
+  			  });
+  			}
+  			else {
+  				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $pull: { likes: user_id } }).exec(function(err, doc){
+  					if(err) res.status(500).json({res : err});
+  			    else res.status(200).json({res : 0});
+  			  });
+  			}
+  		});
+  	}
+  	else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,27 +338,28 @@ router.route('/like')
 router.route('/note')
 // note recipes
 .post(function(req, res){
-	const user_id = isLoggedIn(req);
-  if(user_id){
-    const ObjectId = mongoose.Types.ObjectId(req.body.id);
-		const body = req.body;
-		let newGrade = new RecipeModel.Grade({
-			user: user_id,
-			recipe: ObjectId,
-			grade: body.grade,
-			comment: body.comment
-		});
-		newGrade.save(function(err, grade){
-			if(err) res.status(500).json({res : err});
-			else {
-				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { grades: grade._id } }).exec(function(err, doc){
-					if(err) res.status(500).json({res : err});
-					else res.status(200).json({res : 200});
-				});
-			}
-		});
-	}
-	else res.status(401).json({res : 401});
+  isLoggedIn(req, function(user_id){
+    if(user_id){
+      const ObjectId = mongoose.Types.ObjectId(req.body.id);
+  		const body = req.body;
+  		let newGrade = new RecipeModel.Grade({
+  			user: user_id,
+  			recipe: ObjectId,
+  			grade: body.grade,
+  			comment: body.comment
+  		});
+  		newGrade.save(function(err, grade){
+  			if(err) res.status(500).json({res : err});
+  			else {
+  				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { grades: grade._id } }).exec(function(err, doc){
+  					if(err) res.status(500).json({res : err});
+  					else res.status(200).json({res : 200});
+  				});
+  			}
+  		});
+  	}
+  	else res.status(401).json({res : 401});
+  });
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,8 +367,17 @@ router.route('/note')
 // 1 = ok
 // 2 = taken
 
-function isLoggedIn(req){
-  return req.session.user_id;
+function isLoggedIn(req, callback){
+	if(req.query.id===undefined) callback(false);
+	else {
+		const user_id = mongoose.Types.ObjectId(req.query.id);
+		UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+			if(err) callback(false);
+			else if(doc) callback(doc._id);
+			else callback(false);
+		});
+	}
+  // return true;
 }
 
 function insertFood(food, recipe_id){

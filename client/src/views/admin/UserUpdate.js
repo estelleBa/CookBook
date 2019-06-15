@@ -14,6 +14,7 @@ class AdminUserUpdate extends Component {
 			password: '',
 			password2: '',
 			username: '',
+			userlist: [],
 			user_id: '',
 			isLoginValid: true,
 			isMailValid: true,
@@ -25,17 +26,21 @@ class AdminUserUpdate extends Component {
   }
 
 	_PostSearch = (value) => {
-		PostSearch(value).then(data => {
-			this.setState({
-				username: value
-			});
-			if(data.doc){
-				if(data.doc===false) return;
-				else {
-					console.log(data.doc)
+		if(value!==''){
+			PostSearch(value).then(data => {
+				if(data.doc){
+					this.setState({
+						userlist: data.doc
+					});
 				}
-			}
-		});
+				else return
+			});
+		}
+		else {
+			this.setState({
+				userlist: []
+			});
+		}
 	}
 
 	_checkLogin = (value) => {
@@ -113,8 +118,14 @@ class AdminUserUpdate extends Component {
 		}
 	}
 
+	_selectUser = (id) => {
+		console.log(id)
+		this.setState({
+			user_id: id
+		});
+	}
+
 	handleChange = e => {
-		console.log(this.state.username)
 		const name = e.target.name;
     const value = e.target.value;
 
@@ -122,7 +133,7 @@ class AdminUserUpdate extends Component {
 			[name] : value
     });
 
-		if(name==='user'){
+		if(name==='username'){
 			this._PostSearch(value);
 		}
 		else if(name==='login'){
@@ -151,13 +162,25 @@ class AdminUserUpdate extends Component {
 	render() {
 		let user = JSON.parse(localStorage.getItem('user'));
 		if(user !== null && user.status === 1){
+			let _this = this
+
 			return (
 				<div>
 					<form onSubmit={this.handleSubmit}>
 						<label>
 							Search user:
-							<input type="text" name="user" value={this.state.username} onChange={this.handleChange.bind(this)} />
-							{this.state.user_id}
+							<input type="text" name="username" value={this.state.username} onChange={this.handleChange.bind(this)} />
+						</label>
+						{this.state.userlist.map(function(user){
+							return (
+					      <div key={user._id}>
+					         <div onClick={() => _this._selectUser(user._id)}>{user.login}</div>
+					      </div>
+							);
+						})}
+						<label>
+							User id:
+							<input type="text" name="user_id" value={this.state.user_id} readOnly />
 						</label>
 		        <label>
 		          Login:
