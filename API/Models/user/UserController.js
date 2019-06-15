@@ -102,26 +102,25 @@ router.route('/show/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/update/:id')
+router.route('/update')
 // update user
-.put(function(req, res){
+.post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		const ObjectId = mongoose.Types.ObjectId(req.params.id);
+		const ObjectId = mongoose.Types.ObjectId(req.body.user_id);
 	  if(user_id==ObjectId || req.query.admin){
 			const body = req.body;
 	    UserModel.User.findOne({ _id : ObjectId }).exec(function(err, doc){
 				if(err) res.status(500).json({error : err});
-				if(!doc) res.status(404).json({error : 404});
+				if(!doc) res.status(200).json({error : 'not found'});
 				else {
 					let login = (body.login !== undefined && body.login !== '') ? body.login : doc.login;
 					let email = (body.email !== undefined && body.email !== '') ? body.email : doc.email;
+					let status = (body.status !== undefined && body.status !== '') ? body.status : doc.status;
+					let pass = doc.password;
 					if(body.password !== undefined && body.password !== ''){
-						let pass = cryptPass(body.password);
+						pass = cryptPass(body.password);
 					}
-					else {
-						let pass = doc.password;
-					}
-					UserModel.User.findOneAndUpdate({ _id : ObjectId}, {$set: {login: login, email: email, password: pass}}).exec(function(err, doc){
+					UserModel.User.findOneAndUpdate({ _id : ObjectId}, {$set: {login: login, email: email, password: pass, status: status}}).exec(function(err, doc){
 						if(err) res.status(500).json({error : err});
 						else res.status(200).json({doc : 200});
 		      });
@@ -134,13 +133,13 @@ router.route('/update/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
-router.route('/delete/:id')
+router.route('/delete')
 // delete user
-.delete(function(req, res){
+.post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		const ObjectId = mongoose.Types.ObjectId(req.params.id);
-	  if(user_id==ObjectId){
-	    UserModel.User.deleteOne({ _id : user_id }).exec(function(err, doc){
+		const ObjectId = mongoose.Types.ObjectId(req.body.user_id);
+	  if(user_id==ObjectId || req.query.admin){
+	    UserModel.User.deleteOne({ _id : ObjectId }).exec(function(err, doc){
 				if(err) res.status(500).json({res : err});
 				else {
 					req.session.destroy();
@@ -424,9 +423,7 @@ function isLoggedIn(req, callback){
 }
 
 function isLoginValid(user_id, login, callback){
-	let query = (user_id) ? UserModel.User.find({ _id: { $ne: user_id }, login: login }) : UserModel.User.find({ login: login });
-
-  query.exec(function(err, doc){
+  UserModel.User.find({ login: login }).exec(function(err, doc){
     if(doc.length > 0) callback(false);
     else callback(true);
   });

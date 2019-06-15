@@ -18,7 +18,34 @@ export const PostRegister = (params) => {
 	});
 }
 
-export const PutUpdate = (param) => {
+export const PostUpdate = (params) => {
+	let body = {
+		'user_id': params.user_id,
+		'login': params.login,
+		'email': params.email,
+		'password': params.password,
+		'status': params.status
+	}
+	return axios.post(address+'/users/update', body, {
+		params:{ "id": localStorage.getItem('user_id'), "admin": true },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}
+
+export const DeleteUser = (param) => {
+	let body = {
+		'user_id': param
+	}
+	return axios.post(address+'/users/delete', body, {
+		params:{ "id": localStorage.getItem('user_id'), "admin": true },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
 }
 
 export const PostSearch = (param) => {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {PutUpdate, PostSearch, CheckLogin, CheckMail} from '../../api/Admin.js';
+import {PostUpdate, PostSearch, CheckLogin, CheckMail} from '../../api/Admin.js';
 
 
 class AdminUserUpdate extends Component {
@@ -13,15 +13,18 @@ class AdminUserUpdate extends Component {
 			email: '',
 			password: '',
 			password2: '',
+			status: 0,
 			username: '',
 			userlist: [],
 			user_id: '',
 			isLoginValid: true,
 			isMailValid: true,
 			isPassValid: true,
+			isStatusValid: true,
 			loginAlert: '',
 			mailAlert: '',
-			passAlert: ''
+			passAlert: '',
+			statusAlert: ''
 		}
   }
 
@@ -44,13 +47,7 @@ class AdminUserUpdate extends Component {
 	}
 
 	_checkLogin = (value) => {
-		if(value===''){
-			this.setState({
-				loginAlert: '',
-				isLoginValid: true
-			});
-		}
-		else {
+		if(value!==''){
 			CheckLogin(value).then(data => {
 				if(data.doc === false){
 					this.setState({
@@ -67,16 +64,16 @@ class AdminUserUpdate extends Component {
 				else return;
 			});
 		}
+		else {
+			this.setState({
+				loginAlert: '',
+				isLoginValid: true
+			});
+		}
 	}
 
 	_checkMail = (value) => {
-		if(value===''){
-			this.setState({
-				mailAlert: '',
-				isMailValid: true
-			});
-		}
-		else {
+		if(value!==''){
 			CheckMail(value).then(data => {
 				if(data.doc === false){
 					this.setState({
@@ -93,16 +90,16 @@ class AdminUserUpdate extends Component {
 				else return;
 			});
 		}
+		else {
+			this.setState({
+				mailAlert: '',
+				isMailValid: true
+			});
+		}
 	}
 
 	_checkPass = (value) => {
-		if(value==='' && this.state.password===''){
-			this.setState({
-				passAlert: '',
-				isPassValid: true
-			});
-		}
-		else {
+		if(value!==''){
 			if(value===this.state.password){
 				this.setState({
 					passAlert: '',
@@ -116,10 +113,30 @@ class AdminUserUpdate extends Component {
 				});
 			}
 		}
+		else {
+			this.setState({
+				passAlert: '',
+				isPassValid: true
+			});
+		}
+	}
+
+	_checkStatus = (value) => {
+		if((value == 0 || value == 1) && value.length == 1){
+			this.setState({
+				statusAlert: '',
+				isStatusValid: true
+			});
+		}
+		else {
+			this.setState({
+				statusAlert: 'has to be 1 or 0 (1 = administrator)',
+				isStatusValid: false
+			});
+		}
 	}
 
 	_selectUser = (id) => {
-		console.log(id)
 		this.setState({
 			user_id: id
 		});
@@ -145,22 +162,26 @@ class AdminUserUpdate extends Component {
 		else if(name==='password2'){
 			this._checkPass(value);
 		}
+		else if(name==='status'){
+			this._checkStatus(value);
+		}
   }
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(this.state.user_id !== ''){
-			if(this.state.isPassValid===false || this.state.isMailValid===false || this.state.isLoginValid===false) return;
-			PutUpdate({'user_id':this.state.user_id, 'login':this.state.login, 'email':this.state.email, 'password':this.state.password}).then(data => {
+		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
+			PostUpdate({'user_id':this.state.user_id, 'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
 				this.setState({
 					redirect: true
 				});
 			});
 		}
+		else return;
 	}
 
 	render() {
 		let user = JSON.parse(localStorage.getItem('user'));
+		if(this.state.redirect === true) return <Redirect to={{ pathname: '/admin', alert: 'user updated', alertType: 'info' }} />
 		if(user !== null && user.status === 1){
 			let _this = this
 
@@ -200,6 +221,11 @@ class AdminUserUpdate extends Component {
 		          Password confirmation:
 		          <input type="password" name="password2" value={this.state.password2} onChange={this.handleChange.bind(this)} />
 							{this.state.passAlert}
+		        </label>
+						<label>
+		          Status:
+		          <input type="number" name="status" value={this.state.satus} onChange={this.handleChange.bind(this)} />
+							{this.state.statusAlert}
 		        </label>
 		        <input type="submit" value="Update" />
 		      </form>
