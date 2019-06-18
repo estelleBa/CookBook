@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {PostUpdate, PostSearch, CheckLogin, CheckMail} from '../../api/Admin.js';
+import {UpdateUser, SearchUser, CheckLogin, CheckMail} from '../../api/Admin.js';
 
 
 class AdminUserUpdate extends Component {
@@ -30,7 +30,7 @@ class AdminUserUpdate extends Component {
 
 	_PostSearch = (value) => {
 		if(value!==''){
-			PostSearch(value).then(data => {
+			SearchUser(value).then(data => {
 				if(data.doc){
 					this.setState({
 						userlist: data.doc
@@ -170,7 +170,7 @@ class AdminUserUpdate extends Component {
 	handleSubmit = e => {
 		e.preventDefault();
 		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
-			PostUpdate({'user_id':this.state.user_id, 'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
+			UpdateUser({'user_id':this.state.user_id, 'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
 				this.setState({
 					redirect: true
 				});

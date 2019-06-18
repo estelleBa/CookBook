@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {PostRegister, CheckLogin, CheckMail} from '../../api/Admin.js';
+import {CreateUser, CheckLogin, CheckMail} from '../../api/Admin.js';
 
 class AdminUserCreate extends Component {
 
@@ -139,7 +139,7 @@ class AdminUserCreate extends Component {
 	handleSubmit = e => {
 		e.preventDefault();
 		if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
-			PostRegister({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
+			CreateUser({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
 				this.setState({
 					redirect: true
 				});

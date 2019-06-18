@@ -9,6 +9,8 @@ router.use(bodyParser.json());
 ////////////////////////////////////////////////////////////////////////////////
 
 let CategoryModel = require('./Category');
+let UserModel = require('../user/User');
+let RecipeModel = require('../recipe/Recipe');
 
 ////////////////////////////////////////////////////////////////////////////////
 // CATEGORIES
@@ -29,7 +31,7 @@ router.route('/create')
 // create category
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
-    if(user_id){
+    if(user_id && req.query.admin){
   		const body = req.body;
   		if(body.name !== undefined && body.name !== '' &&
   		body.color !== undefined && body.color !== '') {
@@ -37,7 +39,6 @@ router.route('/create')
   				name: body.name,
   				color: body.color
   			});
-        console.log('toto')
   			newCategory.save(function(err){
   				if(err) res.status(500).json({res : err});
   				else res.status(200).json({res : 200});
@@ -65,6 +66,65 @@ router.route('/show/:id')
 
 ////////////////////////////////////////////////////////////////////////////////
 
+router.route('/update')
+// update category
+.post(function(req, res){
+	isLoggedIn(req, function(user_id){
+	  if(user_id && req.query.admin){
+      const body = req.body;
+	    CategoryModel.Category.findOne({ name : body.category }).exec(function(err, doc){
+				if(err) res.status(500).json({error : err});
+				else if(!doc) res.status(200).json({error : 'not found'});
+				else {
+          let name = (body.name !== undefined && body.name !== '') ? body.name : doc.name;
+          let color = (body.color !== undefined && body.color !== '') ? body.color : doc.color;
+					CategoryModel.Category.findOneAndUpdate({ name : body.category}, {$set: {name: name, color: color}}).exec(function(err, doc){
+						if(err) res.status(500).json({error : err});
+						else res.status(200).json({doc : 200});
+		      });
+				}
+	    });
+	  }
+	  else res.status(401).json({error : 401});
+	});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/delete')
+// delete category
+.post(function(req, res){
+	isLoggedIn(req, function(user_id){
+	  if(user_id && req.query.admin){
+      const body = req.body;
+      CategoryModel.Category.findOne({ name : body.category }).exec(function(err, doc){
+        if(err) res.status(500).json({error : err});
+				else if(!doc) res.status(200).json({error : 'not found'});
+        else {
+          const id = doc._id;
+    	    CategoryModel.Category.deleteOne({ name : body.category }).exec(function(err, doc){
+    				if(err) res.status(500).json({res : err});
+    				else {
+    					RecipeModel.Recipe.updateMany(
+    						{ },
+    						{ $pull: { categories: id } }
+    					).exec(function(err, doc){
+    						if(err) res.status(500).json({res : err});
+    						else {
+    							res.status(200).json({res : 200});
+    						}
+    					});
+    				}
+    	    });
+        }
+      });
+	  }
+	  else res.status(401).json({res : 401});
+	});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,16 +133,16 @@ router.route('/show/:id')
 // 2 = taken
 
 function isLoggedIn(req, callback){
-	// if(req.query.id===undefined) callback(false);
-	// else {
-	// 	const user_id = mongoose.Types.ObjectId(req.query.id);
-	// 	UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
-	// 		if(err) callback(false);
-	// 		else if(doc) callback(doc._id);
-	// 		else callback(false);
-	// 	});
-	// }
-   return true;
+	if(req.query.id===undefined) callback(false);
+	else {
+		const user_id = mongoose.Types.ObjectId(req.query.id);
+		UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+			if(err) callback(false);
+			else if(doc) callback(doc._id);
+			else callback(false);
+		});
+	}
+   //return true;
 }
 
 module.exports = router;

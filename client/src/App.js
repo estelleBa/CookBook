@@ -11,6 +11,8 @@ import AdminUserCreate from './views/admin/UserCreate.js';
 import AdminUserUpdate from './views/admin/UserUpdate.js';
 import AdminUserDelete from './views/admin/UserDelete.js';
 import AdminCategoryCreate from './views/admin/CategoryCreate.js';
+import AdminCategoryUpdate from './views/admin/CategoryUpdate.js';
+import AdminCategoryDelete from './views/admin/CategoryDelete.js';
 import AdminRecipeCreate from './views/admin/RecipeCreate.js';
 import AdminRecipeUpdate from './views/admin/RecipeUpdate.js';
 import AdminRecipeDelete from './views/admin/RecipeDelete.js';
@@ -29,6 +31,8 @@ function App(){
 				<Route path="/admin/user/update" component={AdminUserUpdate} />
 				<Route path="/admin/user/delete" component={AdminUserDelete} />
 				<Route path="/admin/category/create" component={AdminCategoryCreate} />
+				<Route path="/admin/category/update" component={AdminCategoryUpdate} />
+				<Route path="/admin/category/delete" component={AdminCategoryDelete} />
 				<Route path="/admin/recipe/create" component={AdminRecipeCreate} />
 				<Route path="/admin/recipe/update" component={AdminRecipeUpdate} />
 				<Route path="/admin/recipe/delete" component={AdminRecipeDelete} />

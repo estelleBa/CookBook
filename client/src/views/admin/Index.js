@@ -47,6 +47,12 @@ class AdminIndex extends Component {
 							<li>
 								<Link to="/admin/category/create">create</Link>
 							</li>
+							<li>
+								<Link to="/admin/category/update">update</Link>
+							</li>
+							<li>
+								<Link to="/admin/category/delete">delete</Link>
+							</li>
 						</ul>
 					</div>
 					<div>

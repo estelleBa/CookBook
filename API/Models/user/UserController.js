@@ -45,7 +45,7 @@ router.route('/create')
 				let pass = cryptPass(body.password)
 				if(user_id && req.query.admin){
 					let newUser = new UserModel.User({
-						login: body.login,
+						login: body.login.toLowerCase(),
 						email: body.email,
 						password: pass,
 						status: body.status
@@ -57,7 +57,7 @@ router.route('/create')
 				}
 				else if(!user_id){
 					let newUser = new UserModel.User({
-						login: body.login,
+						login: body.login.toLowerCase(),
 						email: body.email,
 						password: pass
 					});
@@ -78,7 +78,7 @@ router.route('/search')
 // search user
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
-		UserModel.User.find({ login : { $regex : req.body.login }}).exec(function(err, doc){
+		UserModel.User.find({ login : { $regex : req.body.login.toLowerCase() } }).exec(function(err, doc){
 			if(err){ res.status(500).json({error : err}); console.log(err);}
 			else if(!doc) res.status(200).json({doc : false});
 	    else res.status(200).json({doc : doc});
@@ -145,7 +145,7 @@ router.route('/delete')
 					req.session.destroy();
 					UserModel.User.updateMany(
 						{ },
-						{ $pull: { followings: user_id, followers: user_id } }
+						{ $pull: { followings: ObjectId, followers: ObjectId } }
 					).exec(function(err, doc){
 						if(err) res.status(500).json({res : err});
 						else {

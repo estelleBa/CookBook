@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {DeleteUser, PostSearch} from '../../api/Admin.js';
+import {DeleteUser, SearchUser} from '../../api/Admin.js';
 
 class AdminUserDelete extends Component {
 
@@ -16,7 +16,7 @@ class AdminUserDelete extends Component {
 
 	_PostSearch = (value) => {
 		if(value!==''){
-			PostSearch(value).then(data => {
+			SearchUser(value).then(data => {
 				if(data.doc){
 					this.setState({
 						userlist: data.doc
