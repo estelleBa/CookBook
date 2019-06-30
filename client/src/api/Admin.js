@@ -36,8 +36,10 @@ export const CreateRecipe = (params) => {
 	let body = {
 		'title': params.title,
 		'quantity': params.quantity,
+		'time': params.time,
+		'image': params.image,
 		'ingredients': params.ingredients,
-		'steps': params.steps,
+		'recipe': params.recipe,
 		'categories': params.categories,
 		'labels': params.labels,
 		'hashtags': params.hashtags

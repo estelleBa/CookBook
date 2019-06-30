@@ -37,14 +37,16 @@ router.route('/create')
   		const body = req.body;
   		if(body.title !== undefined && body.title !== '' &&
   		body.quantity !== undefined && body.quantity !== '' &&
+      body.time !== undefined && body.time !== '' &&
+      body.recipe !== undefined && body.recipe !== '' &&
   		body.ingredients !== undefined && body.ingredients.length > 0 &&
-  		body.steps !== undefined && body.steps.length > 0 &&
       body.categories !== undefined && body.categories.length > 0) {
   			let newRecipe = new RecipeModel.Recipe({
   				title: body.title,
   				image: body.image,
   				quantity: body.quantity,
-  				time: body.time,
+          time: body.time,
+          recipe: body.recipe,
   				chef: user_id
   			});
   			newRecipe.save(function(err){
@@ -58,48 +60,41 @@ router.route('/create')
   						}
   					}
   					insertFoods().then(() => {
-  						const insertSteps = async() => {
-  							for(const step of body.steps){
-  								await insertStep(step, recipe_id);
-  							}
-  						}
-  						insertSteps().then(() => {
-                const addCategories = async() => {
-    							for(const category of body.categories){
-    								await addCategory(category, recipe_id);
-    							}
-    						}
-                addCategories().then(() => {
-                  if(body.labels !== undefined && body.labels.length > 0) {
-                    const addLabels = async() => {
-        							for(const label of body.labels){
-        								await addLabel(label, recipe_id);
-        							}
-        						}
-                    addLabels();
+              const addCategories = async() => {
+                for(const category of body.categories){
+                  await addCategory(category, recipe_id);
+                }
+              }
+              addCategories().then(() => {
+                if(body.labels !== undefined && body.labels.length > 0) {
+                  const addLabels = async() => {
+      							for(const label of body.labels){
+      								await addLabel(label, recipe_id);
+      							}
+      						}
+                  addLabels();
+                }
+                if(body.hashtags !== undefined && body.hashtags.length > 0) {
+                  const addHashtags = async() => {
+      							for(const hashtag of body.hashtags){
+      								await createHashtag(hashtag, recipe_id);
+      							}
+      						}
+                  addHashtags();
+                }
+  							UserModel.User.updateOne(
+  								{ _id: user_id },
+  								{ $push: { recipes: recipe_id } }
+  							).exec(function(err, doc){
+  								if(err) res.status(500).json({res : err});
+  								else {
+                    // if(body.board !== undefined && body.board !== '') {
+        						// 	addToBoard(body.board, recipe_id);
+                    // }
+										// SELECT A BOARD AFTER RECIPE CREATION
+                    res.status(200).json({res : 200});
                   }
-                  if(body.hashtags !== undefined && body.hashtags.length > 0) {
-                    const addHashtags = async() => {
-        							for(const hashtag of body.hashtags){
-        								await createHashtag(hashtag, recipe_id);
-        							}
-        						}
-                    addHashtags();
-                  }
-    							UserModel.User.updateOne(
-    								{ _id: user_id },
-    								{ $push: { recipes: recipe_id } }
-    							).exec(function(err, doc){
-    								if(err) res.status(500).json({res : err});
-    								else {
-                      // if(body.board !== undefined && body.board !== '') {
-          						// 	addToBoard(body.board, recipe_id);
-                      // }
-  										// SELECT A BOARD AFTER RECIPE CREATION
-                      res.status(200).json({res : 200});
-                    }
-    							});
-                });
+  							});
   						});
   					});
   				}
@@ -419,7 +414,6 @@ function insertIngredient(ingredient, food_id, recipe_id){
 
 function insertStep(step, recipe_id){
 	let newStep = new RecipeModel.Step({
-		position: step.position,
 		content: step.content
 	});
 	newStep.save(function(err){
