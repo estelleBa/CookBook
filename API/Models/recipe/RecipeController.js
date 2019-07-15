@@ -344,10 +344,10 @@ router.route('/note')
   			comment: body.comment
   		});
   		newGrade.save(function(err, grade){
-  			if(err) res.status(500).json({res : err});
+  			if(err) res.status(500).json({error : err});
   			else {
   				RecipeModel.Recipe.updateOne({ _id : ObjectId }, { $push: { grades: grade._id } }).exec(function(err, doc){
-  					if(err) res.status(500).json({res : err});
+  					if(err) res.status(500).json({error : err});
   					else res.status(200).json({res : 200});
   				});
   			}
@@ -355,6 +355,38 @@ router.route('/note')
   	}
   	else res.status(401).json({res : 401});
   });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/labels')
+// get labels
+.get(function(req, res){
+	RecipeModel.Label.find({}).exec(function(err, doc){
+		if(err) res.status(500).json({error : err});
+		else res.status(200).json({doc : doc});
+	});
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/hashtags')
+// get hashtags
+.get(function(req, res){
+	RecipeModel.hashtag.find({}).exec(function(err, doc){
+		if(err) res.status(500).json({error : err});
+		else res.status(200).json({doc : doc});
+	});
+});
+////////////////////////////////////////////////////////////////////////////////
+
+router.route('/search/hashtags')
+// search hashtags
+.post(function(req, res){
+	RecipeModel.Hashtag.find({ name : { $regex : req.body.text }}).exec(function(err, doc){
+		if(err) res.status(500).json({error : err});
+		else res.status(200).json({doc : doc});
+	});
 });
 
 ////////////////////////////////////////////////////////////////////////////////

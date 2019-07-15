@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
-import {CreateRecipe, GetCategories} from '../../api/Admin.js';
+import {CreateRecipe, GetCategories, GetLabels, SearchHashtag} from '../../api/Admin.js';
 
 class AdminRecipeCreate extends Component {
 
@@ -9,9 +9,12 @@ class AdminRecipeCreate extends Component {
 		this.ingredients = [];
 		this.ingredientID = 0;
 		this.categories = [];
+		this.labels = [];
 		this.state = {
 			redirect: false,
 			categoryList: [],
+			labelList: [],
+			hashtagList: [],
 			title: '',
 			quantity: '',
 			time: '',
@@ -22,12 +25,14 @@ class AdminRecipeCreate extends Component {
 			ingUnity: '',
 			categories: [],
 			labels: [],
-			hashtags: []
+			hashtags: [],
+			htName: ''
 		}
   }
 
 	componentDidMount() {
     this._getCategories();
+		this._getLabels();
   }
 
 	_getCategories = () => {
@@ -39,6 +44,35 @@ class AdminRecipeCreate extends Component {
 				});
 			}
 		});
+	}
+
+	_getLabels = () => {
+		GetLabels().then(data => {
+			if(!data.doc) return;
+			else {
+				this.setState({
+					labelList: data.doc
+				});
+			}
+		});
+	}
+
+	_postSearch = (value) => {
+		if(value!==''){
+			SearchHashtag(value).then(data => {
+				if(data.doc){
+					this.setState({
+						hashtagList: data.doc
+					});
+				}
+				else return
+			});
+		}
+		else {
+			this.setState({
+				hashtagList: []
+			});
+		}
 	}
 
 	_addIngredient = e => {
@@ -61,12 +95,22 @@ class AdminRecipeCreate extends Component {
 	}
 
 	handleChangeCheckbox = e => {
-		let pos = this.categories.indexOf(e.target.value);
-		if(pos == -1) this.categories.push(e.target.value);
-		else this.categories.splice(pos, 1);
-		this.setState({
-			categories : this.categories
-		});
+		if(e.target.name=='categories'){
+			let pos = this.categories.indexOf(e.target.value);
+			if(pos == -1) this.categories.push(e.target.value);
+			else this.categories.splice(pos, 1);
+			this.setState({
+				categories : this.categories
+			});
+		}
+		else if(e.target.name=='labels'){
+			let pos = this.labels.indexOf(e.target.value);
+			if(pos == -1) this.labels.push(e.target.value);
+			else this.labels.splice(pos, 1);
+			this.setState({
+				labels : this.labels
+			});
+		}
 	}
 
 	handleChange = e => {
@@ -76,6 +120,10 @@ class AdminRecipeCreate extends Component {
 		this.setState({
 			[name] : value
 		});
+
+		if(name==='htName'){
+			this._postSearch(value);
+		}
 	}
 
 	handleSubmit = e => {
@@ -125,10 +173,32 @@ class AdminRecipeCreate extends Component {
 						</div>
 						<p>Recipe:</p>
 						<textarea name="recipe" value={this.state.recipe} onChange={this.handleChange.bind(this)} cols={40} rows={10} />
+						<p>Hashtags:</p>
+						<input type="text" name="htName" value={this.state.htName} onChange={this.handleChange.bind(this)} />
+						{this.state.hashtagList.map(function(hashtag){
+							return (
+								<div key={hashtag._id}>
+									 <div >{hashtag.name}</div>
+								</div>
+							);
+						})}
+						<button onClick={this._addHashtag}>+</button>
+						<div id="hashtags">
+						{
+						 this.state.hashtags.map(function(item, index){
+
+							 return <div key={index}>{item.name} <button onClick={(e) => {_this._delHashtag(e, index)}}>-</button></div>;
+						})}
+						</div>
 						<p>Categories</p>
 						{
 						 this.state.categoryList.map(function(item){
-							 return <div><input type="checkbox" name="category" value={item._id} onChange={_this.handleChangeCheckbox.bind(this)} />{item.name}</div>
+							 return <div><input type="checkbox" name="categories" value={item._id} onChange={_this.handleChangeCheckbox.bind(this)} />{item.name}</div>
+						})}
+						<p>Labels</p>
+						{
+						 this.state.labelList.map(function(item){
+							 return <div><input type="checkbox" name="labels" value={item._id} onChange={_this.handleChangeCheckbox.bind(this)} />{item.name}</div>
 						})}
 
 		        <input type="submit" value="Create" />

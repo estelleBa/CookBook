@@ -124,8 +124,31 @@ export const SearchUser = (param) => {
 	});
 }
 
+export const SearchHashtag = (param) => {
+	let body = {
+		'text': param
+	}
+	return axios.post(address+'/recipes/search/hashtags', body, {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}
+
 export const GetCategories = () => {
 	return axios.get(address+'/categories', {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}
+
+export const GetLabels = () => {
+	return axios.get(address+'/recipes/labels', {
 		params:{ "id": localStorage.getItem('user_id') },
 		headers:{"Content-Type": "application/json"}
 	})
