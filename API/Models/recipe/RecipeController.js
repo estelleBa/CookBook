@@ -294,7 +294,7 @@ router.route('/research')
 router.route('/search')
 // search recipes
 .post(function(req, res){
-	RecipeModel.Recipe.find({ title : { $regex : req.body.text }}).exec(function(err, doc){
+	RecipeModel.Recipe.find({ title : { $regex : req.body.text.toLowerCase() }}).exec(function(err, doc){
 		if(err) res.status(500).json({res : err});
     else res.status(200).json({res : doc});
   });
@@ -383,7 +383,7 @@ router.route('/hashtags')
 router.route('/search/hashtags')
 // search hashtags
 .post(function(req, res){
-	RecipeModel.Hashtag.find({ name : { $regex : req.body.text }}).exec(function(err, doc){
+	RecipeModel.Hashtag.find({ name : { $regex : '^' + req.body.text.toLowerCase() }}).exec(function(err, doc){
 		if(err) res.status(500).json({error : err});
 		else res.status(200).json({doc : doc});
 	});

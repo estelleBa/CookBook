@@ -1,0 +1,37 @@
+.container-fluid {
+  padding-top: 20px !important;
+  background-color: #363434;
+}
+.container {
+  text-align: -webkit-center;
+}
+.form {
+  margin-top: 50px;
+}
+.label-form {
+  text-align: center;
+  margin: 0 auto;
+  width: 100% !important;
+  color: #fff;
+}
+.input-form {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.form-control {
+  width: 60% !important;
+  margin: 0 auto;
+}
+.btn-form {
+  margin-top: 30px;
+}
+.danger {
+  color:red;
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 5px;
+}
+.yummy {
+  margin-top: 100px;
+  width: 50%;
+}

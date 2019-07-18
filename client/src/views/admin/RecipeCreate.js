@@ -8,6 +8,8 @@ class AdminRecipeCreate extends Component {
     super(props);
 		this.ingredients = [];
 		this.ingredientID = 0;
+		this.hts = [];
+		this.htID = 0;
 		this.categories = [];
 		this.labels = [];
 		this.state = {
@@ -65,7 +67,6 @@ class AdminRecipeCreate extends Component {
 						hashtagList: data.doc
 					});
 				}
-				else return
 			});
 		}
 		else {
@@ -91,6 +92,25 @@ class AdminRecipeCreate extends Component {
 		delete this.ingredients[id];
 		this.setState({
 			ingredients : this.ingredients
+		});
+	}
+
+	_addHashtag = e => {
+		e.preventDefault();
+		if(this.state.htName === '') return;
+
+		this.htID ++;
+		this.hts[this.htID] = {"name":this.state.htName};
+		this.setState({
+			hashtags : this.hts
+		});
+	}
+
+	_delHashtag = (e, id) => {
+		e.preventDefault();
+		delete this.hts[id];
+		this.setState({
+			hashtags : this.hts
 		});
 	}
 
@@ -146,7 +166,7 @@ class AdminRecipeCreate extends Component {
 		else if(user !== null && user.status === 1){
 			return (
 				<div>
-					<form onSubmit={this.handleSubmit}>
+					<form onSubmit={this.handleSubmit} >
 		        <label>
 		          Title:
 							<input type="text" name="title" value={this.state.title} onChange={this.handleChange.bind(this)} />
@@ -171,10 +191,13 @@ class AdminRecipeCreate extends Component {
 							 return <div key={index}>{index}, {item.name}, {item.quantity}, {item.unity} <button onClick={(e) => {_this._delIngredient(e, index)}}>-</button></div>;
 						})}
 						</div>
+
 						<p>Recipe:</p>
 						<textarea name="recipe" value={this.state.recipe} onChange={this.handleChange.bind(this)} cols={40} rows={10} />
+
 						<p>Hashtags:</p>
 						<input type="text" name="htName" value={this.state.htName} onChange={this.handleChange.bind(this)} />
+						<button onClick={this._addHashtag}>+</button>
 						{this.state.hashtagList.map(function(hashtag){
 							return (
 								<div key={hashtag._id}>
@@ -182,7 +205,7 @@ class AdminRecipeCreate extends Component {
 								</div>
 							);
 						})}
-						<button onClick={this._addHashtag}>+</button>
+
 						<div id="hashtags">
 						{
 						 this.state.hashtags.map(function(item, index){
@@ -190,11 +213,13 @@ class AdminRecipeCreate extends Component {
 							 return <div key={index}>{item.name} <button onClick={(e) => {_this._delHashtag(e, index)}}>-</button></div>;
 						})}
 						</div>
+
 						<p>Categories</p>
 						{
 						 this.state.categoryList.map(function(item){
 							 return <div><input type="checkbox" name="categories" value={item._id} onChange={_this.handleChangeCheckbox.bind(this)} />{item.name}</div>
 						})}
+
 						<p>Labels</p>
 						{
 						 this.state.labelList.map(function(item){

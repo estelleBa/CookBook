@@ -1,0 +1,35 @@
+.cubes-container {
+  padding: 20px;
+  width: 300px;
+  height: 300px;
+  margin: 20px;
+  border-radius: 4px;
+}
+.categories-cubes {
+  text-decoration: 'none';
+  justify-content: center;
+  padding: 50px;
+  text-align: center;
+  color: #fff;
+  font-size: 30px;
+}
+.cubes-container:hover {
+  opacity: 0.7;
+}
+.recipes-container {
+  width: 300px;
+  height: 300px;
+  margin: 50px;
+}
+.recieps-cubes {
+  justify-content: center;
+  padding: 50px;
+  text-align: center;
+  color: #fff;
+  font-size: 30px;
+}
+.recipe-img {
+  width: 300px;
+  height: 300px;
+  border-radius: 4px;
+}

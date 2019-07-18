@@ -16,6 +16,7 @@ import AdminCategoryDelete from './views/admin/CategoryDelete.js';
 import AdminRecipeCreate from './views/admin/RecipeCreate.js';
 import AdminRecipeUpdate from './views/admin/RecipeUpdate.js';
 import AdminRecipeDelete from './views/admin/RecipeDelete.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App(){
 	return (

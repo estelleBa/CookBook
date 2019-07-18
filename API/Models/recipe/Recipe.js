@@ -43,6 +43,7 @@ let LabelSchema = new mongoose.Schema({
 
 let HashtagSchema = new mongoose.Schema({
 	name: String,
+  nb: Number,
 	followers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 

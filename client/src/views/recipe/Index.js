@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {GetRecipesFromCategory} from '../../api/Categories.js';
 import RecipesList from '../lists/RecipesList.js';
+import { Row } from 'reactstrap';
 
 class RecipeIndex extends Component {
 
@@ -29,10 +30,12 @@ class RecipeIndex extends Component {
 
 	render() {
 		return (
-			<div>
+			<div className="container-fluid" style={{ minHeight: '100vh'}}>
+				<Row style={{ margin: '20px 100px', justifyContent: 'center'}}>
 				{this.state.recipes.map((recipe) =>
 					<RecipesList key={recipe._id} recipe={recipe} />
 	      )}
+				</Row>
       </div>
 		)
 	}

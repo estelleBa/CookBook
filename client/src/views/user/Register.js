@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from "react-router-dom";
 import {PostRegister, CheckLogin, CheckMail} from '../../api/Users.js';
+import { Form, FormGroup, Label, Input } from 'reactstrap';
+import '../../css/form.css';
 
 class Register extends Component {
 
@@ -134,29 +136,37 @@ class Register extends Component {
 		}
 		else {
 	    return (
-				<div>
-					<form onSubmit={this.handleSubmit}>
-		        <label>
-		          Login:
-		          <input type="text" name="login" value={this.state.login} onChange={this.handleChange.bind(this)} />
-							{this.state.loginAlert}
-		        </label>
-						<label>
-		          Email:
-		          <input type="text" name="email" value={this.state.email} onChange={this.handleChange.bind(this)} />
-							{this.state.mailAlert}
-		        </label>
-						<label>
-		          Password:
-		          <input type="password" name="password" value={this.state.password} onChange={this.handleChange.bind(this)} />
-		        </label>
-						<label>
-		          Password confirmation:
-		          <input type="password" name="password2" value={this.state.password2} onChange={this.handleChange.bind(this)} />
-							{this.state.passAlert}
-		        </label>
-		        <input type="submit" value="Register" />
-		      </form>
+				<div className="container-fluid" style={{ minHeight: '100vh'}}>
+					<Form onSubmit={this.handleSubmit} className="form">
+						<FormGroup>
+			        <Label className="label-form">
+			          LOGIN:
+			        </Label>
+							<Input className="input-form" type="text" name="login" value={this.state.login} onChange={this.handleChange.bind(this)} />
+							<p className="danger">{this.state.loginAlert}</p>
+						</FormGroup>
+						<FormGroup>
+							<Label className="label-form">
+			          EMAIL:
+			        </Label>
+							<Input className="input-form" type="text" name="email" value={this.state.email} onChange={this.handleChange.bind(this)} />
+							<p className="danger">{this.state.mailAlert}</p>
+						</FormGroup>
+						<FormGroup>
+							<Label className="label-form">
+			          PASSWORD:
+			        </Label>
+							<Input className="input-form" type="password" name="password" value={this.state.password} onChange={this.handleChange.bind(this)} />
+						</FormGroup>
+						<FormGroup>
+							<Label className="label-form">
+			          PASSWORD CONFIRMATION:
+							</Label>
+		          <Input className="input-form" type="password" name="password2" value={this.state.password2} onChange={this.handleChange.bind(this)} />
+							<p className="danger">{this.state.passAlert}</p>
+						</FormGroup>
+		        <Input type="submit" value="REGISTER" className="btn-form"/>
+		      </Form>
 				</div>
 	    );
 		}

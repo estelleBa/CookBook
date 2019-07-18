@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
 import {PostLogin} from '../../api/Users.js';
+import { Form, FormGroup, Label, Input } from 'reactstrap';
+import '../../css/form.css';
+import yummy from '../../images/yummy.png';
 
 class Login extends Component {
 
@@ -73,20 +76,25 @@ class Login extends Component {
 		}
 		else {
 	    return (
-				<div>
+				<div className="container-fluid" style={{ minHeight: '100vh'}}>
 				{ (this.props.location.alert === undefined) ? '' : <div style={this._alertStyle(this.props.location.alertType)}>{ this.props.location.alert }</div> }
-					<form onSubmit={this.handleSubmit}>
-		        <label>
-		          Login:
-		          <input type="text" name="login" value={this.state.login} onChange={this.handleChange.bind(this)} />
-		        </label>
-						<label>
-		          Password:
-		          <input type="password" name="password" value={this.state.password} onChange={this.handleChange.bind(this)} />
-		        </label>
-						{this.state.alert}
-		        <input type="submit" value="Login" />
-		      </form>
+					<Form onSubmit={this.handleSubmit} className="form">
+						<FormGroup>
+			        <Label className="label-form">
+			          LOGIN:
+							</Label>
+		          <Input className="input-form" type="text" name="login" value={this.state.login} onChange={this.handleChange.bind(this)} />
+						</FormGroup>
+						<FormGroup>
+							<Label className="label-form">
+			          PASSWORD:
+			        </Label>
+							<Input className="input-form" type="password" name="password" value={this.state.password} onChange={this.handleChange.bind(this)} />
+							<p className="danger">{this.state.alert}</p>
+						</FormGroup>
+		        <Input type="submit" value="LOGIN" className="btn-form"/>
+		      </Form>
+					<div className="container"><img src={yummy} alt="yummy" className="yummy" /></div>
 				</div>
 	    );
 		}
