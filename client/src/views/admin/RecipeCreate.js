@@ -24,7 +24,7 @@ class AdminRecipeCreate extends Component {
 			ingredients: [],
 			ingName: '',
 			ingQuantity: '',
-			ingUnity: '',
+			ingUnity: '-',
 			categories: [],
 			labels: [],
 			hashtags: [],
@@ -78,12 +78,15 @@ class AdminRecipeCreate extends Component {
 
 	_addIngredient = e => {
 		e.preventDefault();
-		if(this.state.ingName === '' || this.state.ingQuantity === '' || this.state.ingUnity === '') return;
+		if(this.state.ingName === '' || this.state.ingQuantity === '') return;
+		e.target.value = '';
 
-		this.ingredientID ++;
 		this.ingredients[this.ingredientID] = {"name":this.state.ingName, "quantity":this.state.ingQuantity, "unity":this.state.ingUnity};
+		this.ingredientID ++;
 		this.setState({
-			ingredients : this.ingredients
+			ingredients : this.ingredients,
+			ingName : '',
+			ingQuantity : ''
 		});
 	}
 
@@ -97,12 +100,13 @@ class AdminRecipeCreate extends Component {
 
 	_addHashtag = e => {
 		e.preventDefault();
-		if(this.state.htName === '') return;
+		if(this.state.htName === '') return;;
 
-		this.htID ++;
 		this.hts[this.htID] = {"name":this.state.htName};
+		this.htID ++;
 		this.setState({
-			hashtags : this.hts
+			hashtags : this.hts,
+			htName : ''
 		});
 	}
 
@@ -149,14 +153,18 @@ class AdminRecipeCreate extends Component {
 	handleSubmit = e => {
 		e.preventDefault();
 		console.log(this.state)
-		// if(this.state.isLoginValid===true&&this.state.isMailValid===true&&this.state.isPassValid===true&&this.state.isStatusValid===true){
-		// 	CreateUser({'login':this.state.login, 'email':this.state.email, 'password':this.state.password, 'status':this.state.status}).then(data => {
-		// 		this.setState({
-		// 			redirect: true
-		// 		});
-		// 	});
-		// }
-		// else return;
+		if(this.state.title!==''&&this.state.quantity!==''&&this.state.time!==''&&this.state.recipe!==''&&this.state.ingredients.length>0&&this.state.categories.length>0){
+			CreateRecipe(
+				{'title':this.state.title, 'quantity':this.state.quantity, 'time':this.state.time, 'recipe':this.state.recipe,
+				'ingredients':this.state.ingredients,'categories':this.state.categories,'hashtags':this.state.hashtags,'labels':this.state.labels}
+			).then(data => {
+				console.log(data)
+				this.setState({
+					redirect: true
+				});
+			});
+		}
+		else return;
 	}
 
 	render() {
@@ -181,8 +189,18 @@ class AdminRecipeCreate extends Component {
 		        </label>
 						<p>Ingredients:</p>
 						<label>Name:<input type="text" name="ingName" value={this.state.ingName} onChange={this.handleChange.bind(this)} /></label>
-						<label>Quantity:<input type="text" name="ingQuantity" value={this.state.ingQuantity} onChange={this.handleChange.bind(this)} /></label>
-						<label>Unit:<input type="text" name="ingUnity" value={this.state.ingUnity} onChange={this.handleChange.bind(this)} /></label>
+						<label>Quantity:<input type="number" name="ingQuantity" value={this.state.ingQuantity} onChange={this.handleChange.bind(this)} /></label>
+						<label>Unit:
+							<select name="ingUnity" onChange={this.handleChange.bind(this)} value={this.state.ingUnity}>
+								<option>-</option>
+								<option>K</option>
+								<option>G</option>
+								<option>L</option>
+								<option>CL</option>
+								<option>CaC</option>
+								<option>CaS</option>
+							</select>
+						</label>
 						<button onClick={this._addIngredient}>+</button>
 						<div id="ingredients">
 						{

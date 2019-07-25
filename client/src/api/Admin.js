@@ -37,9 +37,9 @@ export const CreateRecipe = (params) => {
 		'title': params.title,
 		'quantity': params.quantity,
 		'time': params.time,
-		'image': params.image,
-		'ingredients': params.ingredients,
+		//'image': params.image,
 		'recipe': params.recipe,
+		'ingredients': params.ingredients,
 		'categories': params.categories,
 		'labels': params.labels,
 		'hashtags': params.hashtags

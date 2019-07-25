@@ -241,8 +241,8 @@ router.route('/show/:id')
 				path: 'food'
 			}
 	}).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
-    else res.status(200).json({res : doc});
+		if(err) res.status(500).json({err : err});
+    else res.status(200).json({doc : doc});
   });
 });
 
@@ -409,13 +409,13 @@ function isLoggedIn(req, callback){
 
 function insertFood(food, recipe_id){
 	RecipeModel.Food.findOne({ name : food.name }).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else if(!doc){
 			let newFood = new RecipeModel.Food({
 				name: food.name
 			});
 			newFood.save(function(err){
-				if(err) res.status(500).json({res : err});
+				if(err) console.log(err)
 				else insertIngredient(food, newFood._id, recipe_id);
 			});
 		}
@@ -431,50 +431,49 @@ function insertIngredient(ingredient, food_id, recipe_id){
 		unity: ingredient.unity
 	});
 	newIngredient.save(function(err){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else {
 			RecipeModel.Recipe.updateOne(
 				{ _id: recipe_id },
 				{ $push: { ingredients: newIngredient._id } }
 			).exec(function(err, doc){
-				if(err) res.status(500).json({res : err});
+				if(err) console.log(err)
 				else return;
 			});
 		}
 	});
 }
 
-function insertStep(step, recipe_id){
-	let newStep = new RecipeModel.Step({
-		content: step.content
-	});
-	newStep.save(function(err){
-		if(err) res.status(500).json({res : err});
-		else {
-			RecipeModel.Recipe.updateOne(
-				{ _id: recipe_id },
-				{ $push: { steps: newStep._id } }
-			).exec(function(err, doc){
-				if(err) res.status(500).json({res : err});
-				else return;
-			});
-		}
-	});
-}
+// function insertStep(step, recipe_id){
+// 	let newStep = new RecipeModel.Step({
+// 		content: step.content
+// 	});
+// 	newStep.save(function(err){
+// 		if(err) res.status(500).json({res : err});
+// 		else {
+// 			RecipeModel.Recipe.updateOne(
+// 				{ _id: recipe_id },
+// 				{ $push: { steps: newStep._id } }
+// 			).exec(function(err, doc){
+// 				if(err) res.status(500).json({res : err});
+// 				else return;
+// 			});
+// 		}
+// 	});
+// }
 
 function addCategory(category, recipe_id){
-  let ObjectId = mongoose.Types.ObjectId(category.id);
   CategoryModel.Category.updateOne(
-    { _id: ObjectId },
+    { _id: category },
     { $push: { recipes: recipe_id } }
   ).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else {
       RecipeModel.Recipe.updateOne(
         { _id: recipe_id },
-        { $push: { categories: ObjectId } }
+        { $push: { categories: category } }
       ).exec(function(err, doc){
-        if(err) res.status(500).json({res : err});
+        if(err) console.log(err)
         else return;
       });
     }
@@ -487,24 +486,34 @@ function addLabel(label, recipe_id){
     { _id: recipe_id },
     { $push: { labels: ObjectId } }
   ).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else return;
   });
 }
 
 function createHashtag(hashtag, recipe_id){
   RecipeModel.Hashtag.findOne({ name : hashtag.name }).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else if(!doc){
 			let newHashtag = new RecipeModel.Hashtag({
-				name: hashtag.name
+				name: hashtag.name,
+        nb: 1
 			});
 			newHashtag.save(function(err){
-				if(err) res.status(500).json({res : err});
+				if(err) console.log(err)
 				else addHashtag(newHashtag._id, recipe_id);
 			});
 		}
-		else addHashtag(doc._id, recipe_id);
+		else {
+      let nb = (!doc.nb) ? 1 : doc.nb;
+      RecipeModel.Hashtag.updateOne(
+        { _id: doc._id },
+        { $set: { nb: nb+1 } }
+      ).exec(function(err, doc){
+        if(err) console.log(err)
+        else addHashtag(doc._id, recipe_id);
+      });
+    }
   });
 }
 
@@ -514,7 +523,7 @@ function addHashtag(hashtag_id, recipe_id){
 		{ _id: recipe_id },
 		{ $push: { hashtags: ObjectId } }
 	).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else return;
 	});
 }
@@ -525,13 +534,13 @@ function addToBoard(board, recipe_id){
     { _id: ObjectId },
     { $push: { recipes: recipe_id } }
   ).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else {
       RecipeModel.Recipe.updateOne(
         { _id: recipe_id },
         { $push: { boards: ObjectId } }
       ).exec(function(err, doc){
-        if(err) res.status(500).json({res : err});
+        if(err) console.log(err)
         else return;
       });
     }
@@ -541,7 +550,7 @@ function addToBoard(board, recipe_id){
 function rmIngredient(id){
   let ObjectId = mongoose.Types.ObjectId(id);
   RecipeModel.Ingredient.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else return;
   });
 }
@@ -549,7 +558,7 @@ function rmIngredient(id){
 function rmStep(id){
   let ObjectId = mongoose.Types.ObjectId(id);
   RecipeModel.Step.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else return;
   });
 }
@@ -557,7 +566,7 @@ function rmStep(id){
 function rmGrade(id){
   let ObjectId = mongoose.Types.ObjectId(id);
   RecipeModel.Grade.deleteOne({ _id : ObjectId }).exec(function(err, doc){
-    if(err) res.status(500).json({res : err});
+    if(err) console.log(err)
     else return;
   });
 }
@@ -568,7 +577,7 @@ function addRecipeToCategory(id, recipe_id){
 		{ _id: ObjectId },
 		{ $push: { recipes: recipe_id } }
 	).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else return;
 	});
 }
@@ -579,7 +588,7 @@ function rmOldRecipeCategory(id, recipe_id){
 		{ _id: ObjectId },
 		{ $pull: { recipes: recipe_id } }
 	).exec(function(err, doc){
-		if(err) res.status(500).json({res : err});
+		if(err) console.log(err)
 		else return;
 	});
 }

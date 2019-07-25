@@ -20,7 +20,7 @@ class RecipeIndex extends Component {
 	_getRecipesFromCategory = (category) => {
 		GetRecipesFromCategory(category).then(data => {
 			if(!data.doc) return;
-			else {console.log(data)
+			else {
 				this.setState({
 					recipes: data.doc.recipes
 				});

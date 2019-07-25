@@ -11,3 +11,13 @@ export const GetRecipes = () => {
 		return res.data;
 	});
 }
+
+export const GetRecipe = (param) => {
+	return axios.get(address+'/show/'+param, {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}

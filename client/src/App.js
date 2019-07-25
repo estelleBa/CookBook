@@ -6,6 +6,7 @@ import Home from './views/category/Index.js';
 import Login from './views/user/Login.js';
 import Register from './views/user/Register.js';
 import RecipeIndex from './views/recipe/Index.js';
+import RecipeCard from './views/recipe/Card.js';
 import Admin from './views/admin/Index.js';
 import AdminUserCreate from './views/admin/UserCreate.js';
 import AdminUserUpdate from './views/admin/UserUpdate.js';
@@ -27,6 +28,7 @@ function App(){
 				<Route path="/login" component={Login} />
 				<Route path="/register" component={Register} />
 				<Route path="/category/:category" component={RecipeIndex} />
+				<Route path="/recipe/:recipe" component={RecipeCard} />
 				<Route path="/admin" component={Admin} />
 				<Route path="/admin/user/create" component={AdminUserCreate} />
 				<Route path="/admin/user/update" component={AdminUserUpdate} />
