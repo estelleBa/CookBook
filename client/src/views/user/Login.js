@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link, Redirect } from "react-router-dom";
+import { BrowserRouter as Redirect } from "react-router-dom";
 import {PostLogin} from '../../api/Users.js';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import '../../css/form.css';
@@ -22,6 +22,7 @@ class Login extends Component {
 		let color;
 		switch(type) {
 			case 'info': color='#d8f1ff'; break;
+			default : color='#d8f1ff';
 		}
 		return {
      backgroundColor: color

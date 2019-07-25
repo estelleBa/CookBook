@@ -3,14 +3,11 @@ import { Link, Redirect } from "react-router-dom";
 
 class AdminIndex extends Component {
 
-	constructor(props) {
-    super(props);
-  }
-
 	_alertStyle = (type) => {
 		let color;
 		switch(type) {
 			case 'info': color='#d8f1ff'; break;
+			default : color='#d8f1ff';
 		}
 		return {
      backgroundColor: color

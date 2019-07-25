@@ -100,7 +100,7 @@ class AdminUserCreate extends Component {
 	}
 
 	_checkStatus = (value) => {
-		if((value == 0 || value == 1) && value.length == 1){
+		if((value === 0 || value === 1) && value.length === 1){
 			this.setState({
 				statusAlert: '',
 				isStatusValid: true

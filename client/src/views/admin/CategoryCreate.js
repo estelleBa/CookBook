@@ -24,7 +24,7 @@ class AdminCategoryCreate extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(this.state.category != '-' && this.state.name != '' && this.state.color != ''){
+		if(this.state.category !== '-' && this.state.name !== '' && this.state.color !== ''){
 			CreateCategory({'name':this.state.name, 'color':this.state.color}).then(data => {
 				this.setState({
 					redirect: true

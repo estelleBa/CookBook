@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { Col } from 'reactstrap';
-import Image from 'react-bootstrap/Image'
-import test from '../../images/test.jpg';
 
 class RecipesList extends Component {
-
-	constructor(props) {
-    super(props);
-  }
 
 	render() {
 		const {recipe} = this.props;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import {PostRegister, CheckLogin, CheckMail} from '../../api/Users.js';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
 import '../../css/form.css';

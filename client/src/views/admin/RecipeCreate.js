@@ -106,7 +106,8 @@ class AdminRecipeCreate extends Component {
 		this.htID ++;
 		this.setState({
 			hashtags : this.hts,
-			htName : ''
+			htName : '',
+			hashtagList: []
 		});
 	}
 
@@ -119,17 +120,17 @@ class AdminRecipeCreate extends Component {
 	}
 
 	handleChangeCheckbox = e => {
-		if(e.target.name=='categories'){
+		if(e.target.name==='categories'){
 			let pos = this.categories.indexOf(e.target.value);
-			if(pos == -1) this.categories.push(e.target.value);
+			if(pos === -1) this.categories.push(e.target.value);
 			else this.categories.splice(pos, 1);
 			this.setState({
 				categories : this.categories
 			});
 		}
-		else if(e.target.name=='labels'){
+		else if(e.target.name==='labels'){
 			let pos = this.labels.indexOf(e.target.value);
-			if(pos == -1) this.labels.push(e.target.value);
+			if(pos === -1) this.labels.push(e.target.value);
 			else this.labels.splice(pos, 1);
 			this.setState({
 				labels : this.labels
@@ -152,13 +153,11 @@ class AdminRecipeCreate extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		console.log(this.state)
 		if(this.state.title!==''&&this.state.quantity!==''&&this.state.time!==''&&this.state.recipe!==''&&this.state.ingredients.length>0&&this.state.categories.length>0){
 			CreateRecipe(
 				{'title':this.state.title, 'quantity':this.state.quantity, 'time':this.state.time, 'recipe':this.state.recipe,
 				'ingredients':this.state.ingredients,'categories':this.state.categories,'hashtags':this.state.hashtags,'labels':this.state.labels}
 			).then(data => {
-				console.log(data)
 				this.setState({
 					redirect: true
 				});

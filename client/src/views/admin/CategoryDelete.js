@@ -39,7 +39,7 @@ class AdminCategoryDelete extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(this.state.category != '-'){
+		if(this.state.category !== '-'){
 			DeleteCategory(this.state.category).then(data => {
 				this.setState({
 					redirect: true

@@ -52,7 +52,7 @@ router.route('/create')
   			newRecipe.save(function(err){
   				if(err) res.status(500).json({res : err});
   				else {
-  					let recipe_id = mongoose.Types.ObjectId(newRecipe._id);
+  					let recipe_id = newRecipe._id;
 
   					const insertFoods = async() => {
   						for(const ingredient of body.ingredients){
@@ -398,7 +398,7 @@ function isLoggedIn(req, callback){
 	if(req.query.id===undefined) callback(false);
 	else {
 		const user_id = mongoose.Types.ObjectId(req.query.id);
-		UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+		UserModel.User.findOne({ _id : req.query.id }).exec(function(err, doc){
 			if(err) callback(false);
 			else if(doc) callback(doc._id);
 			else callback(false);
@@ -481,7 +481,7 @@ function addCategory(category, recipe_id){
 }
 
 function addLabel(label, recipe_id){
-  let ObjectId = mongoose.Types.ObjectId(label.id);
+  let ObjectId = mongoose.Types.ObjectId(label);
   RecipeModel.Recipe.updateOne(
     { _id: recipe_id },
     { $push: { labels: ObjectId } }
@@ -505,10 +505,9 @@ function createHashtag(hashtag, recipe_id){
 			});
 		}
 		else {
-      let nb = (!doc.nb) ? 1 : doc.nb;
       RecipeModel.Hashtag.updateOne(
         { _id: doc._id },
-        { $set: { nb: nb+1 } }
+        { $set: { nb: doc.nb+1 } }
       ).exec(function(err, doc){
         if(err) console.log(err)
         else addHashtag(doc._id, recipe_id);
@@ -518,10 +517,10 @@ function createHashtag(hashtag, recipe_id){
 }
 
 function addHashtag(hashtag_id, recipe_id){
-  let ObjectId = mongoose.Types.ObjectId(hashtag_id);
+  console.log(hashtag_id + '  ' + recipe_id)
 	RecipeModel.Recipe.updateOne(
 		{ _id: recipe_id },
-		{ $push: { hashtags: ObjectId } }
+		{ $push: { hashtags: hashtag_id } }
 	).exec(function(err, doc){
 		if(err) console.log(err)
 		else return;

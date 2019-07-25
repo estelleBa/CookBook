@@ -41,7 +41,7 @@ class AdminCategoryUpdate extends Component {
 
 	handleSubmit = e => {
 		e.preventDefault();
-		if(this.state.category != '-' && this.state.name != ''){
+		if(this.state.category !== '-' && this.state.name !== ''){
 			UpdateCategory({'category':this.state.category, 'name':this.state.name, 'color':this.state.color}).then(data => {
 				this.setState({
 					redirect: true

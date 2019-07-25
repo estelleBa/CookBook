@@ -5,10 +5,6 @@ import '../css/navbar.css';
 
 class Header extends Component {
 
-	constructor(props) {
-    super(props);
-  }
-
 	logout = () => {
 		localStorage.removeItem('user');
 		localStorage.removeItem('user_id');
@@ -28,7 +24,7 @@ class Header extends Component {
 								<Link className="navlink" to="/login" onClick={this.logout}>Logout</Link>
 							</Col>
 						</Row>
-						<div style={{ display : 'flex'}}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
+						<div style={{ display : 'flex', marginRight: '18px' }}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
 					</div>
 				);
 			}
@@ -41,7 +37,7 @@ class Header extends Component {
 								<Link className="navlink" to="/login" onClick={this.logout}>Logout</Link>
 							</Col>
 						</Row>
-						<div style={{ display : 'flex'}}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
+						<div style={{ display : 'flex', marginRight: '18px' }}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
 					</div>
 				);
 			}
@@ -56,7 +52,7 @@ class Header extends Component {
 							<Link className="navlink" to="/register">Register</Link>
 						</Col>
 					</Row>
-					<div style={{ display : 'flex'}}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
+					<div style={{ display : 'flex', marginRight: '18px' }}><Input style={{ marginRight: '10px' }} type="text" /><div className="searchbar"><p>V</p></div></div>
 				</div>
 			);
 		}
