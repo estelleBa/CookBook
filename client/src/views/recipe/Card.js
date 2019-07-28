@@ -155,9 +155,7 @@ class RecipeCard extends Component {
               <h5>Ingredients</h5>
               {this.state.ingredients.map((ing, i) =>
     						<div key={ing.food._id} className="ingr_list" style={{ display: 'flex' }}>
-                  <p>{ing.food.name}</p>
-                  <p>{this.ingQuantity[i]}</p>
-                  <p>{ing.unity}</p>
+                  <p>{ing.food.name} {this.ingQuantity[i]} {ing.unity}</p>
                 </div>
     		      )}
             </div>

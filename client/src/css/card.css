@@ -81,6 +81,7 @@
 }
 .recipe_info {
   display: flex;
+  margin:10px;
 }
 .recipe_info>div>p {
   margin-bottom: 10px;
@@ -108,7 +109,7 @@
 .recipe_ingr>h5, .recipe_text>h5 {
   color: #007bff;
 }
-.ingr_list>p, , .recipe_text>p {
+.ingr_list>p , .recipe_text>p {
   font-size: 18px;
-  margin: 5px;
+  margin: 10px 20px;
 }
