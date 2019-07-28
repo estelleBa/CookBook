@@ -113,3 +113,17 @@
   font-size: 18px;
   margin: 10px 20px;
 }
+.recipe_mention {
+  margin:10px;
+}
+.label_list>p {
+  margin:10px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+.hashtag_list, .label_list {
+  display: flex;
+}
+.hashtag_list>p {
+  margin: 5px;
+}

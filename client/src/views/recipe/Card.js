@@ -146,6 +146,19 @@ class RecipeCard extends Component {
         </Row>
 				<Row style={{ margin: '10px 0px', justifyContent: 'center'}}>
           <div className="recipe_card">
+          <div className="recipe_mention">
+            <div className="label_list">
+              {this.state.labels.map((lbl) =>
+                <p style={{ backgroundColor: '#' + lbl.color }} key={lbl._id}>{lbl.name}</p>
+              )}
+            </div>
+            <div className="hashtag_list">
+              {this.state.hashtags.map((ht) =>
+                <p key={ht._id}>#{ht.name}</p>
+              )}
+            </div>
+          </div>
+          <div className="blue_line"></div>
             <div className="recipe_info">
               <div style={{ display: 'flex' }}><p>Quantity: </p><p className="qty_btn" onClick={this._downQuantity}>-</p><p> {this.state.quantity} </p><p className="qty_btn" onClick={this._upQuantity}>+</p><p> person(s)</p></div>
               <div style={{ marginLeft: 'auto' }}><p>Time: {this.state.recipe.time}</p></div>
