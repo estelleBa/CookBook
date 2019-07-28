@@ -234,7 +234,7 @@ router.route('/follow')
 .post(function(req, res){
 	isLoggedIn(req, function(user_id){
     if(user_id){
-			const item_id = mongoose.Types.ObjectId(req.body.id);
+			const item_id = req.body.id;
 			const item_type = req.body.type;
 			switch(item_type){
 				case 'u':
@@ -380,11 +380,11 @@ router.route('/following')
 	isLoggedIn(req, function(user_id){
     if(user_id){
 			UserModel.User.findOne({ _id: user_id }).populate('followings').exec(function(err, doc){
-				if(err) res.status(500).json({res : err});
-	      else res.status(200).json({res : doc});
+				if(err) res.status(500).json({error : err});
+	      else res.status(200).json({doc : doc});
 	    });
 		}
-		else res.status(401).json({res : 401});
+		else res.status(401).json({error : 401});
 	});
 });
 
@@ -412,8 +412,7 @@ router.route('/followers')
 function isLoggedIn(req, callback){
 	if(req.query.id===undefined) callback(false);
 	else {
-		const user_id = mongoose.Types.ObjectId(req.query.id);
-		UserModel.User.findOne({ _id : user_id }).exec(function(err, doc){
+		UserModel.User.findOne({ _id : req.query.id }).exec(function(err, doc){
 			if(err) callback(false);
 			else if(doc) callback(doc._id);
 			else callback(false);

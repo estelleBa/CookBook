@@ -16,7 +16,7 @@ class Header extends Component {
 			let user = JSON.parse(localStorage.getItem('user'));
 			if(user.status === 1){
 				return (
-					<div className="container-fluid navbar">
+					<div id="root-nav" className="container-fluid navbar">
 						<Row>
 							<Col>
 								<Link className="navlink" to="/admin">Admin</Link>
@@ -30,7 +30,7 @@ class Header extends Component {
 			}
 			else {
 				return (
-					<div className="container-fluid navbar">
+					<div id="root-nav" className="container-fluid navbar">
 						<Row >
 							<Col>
 								<Link className="navlink" to="/home">Home</Link>
@@ -44,7 +44,7 @@ class Header extends Component {
 		}
 		else {
 			return (
-				<div className="container-fluid navbar">
+				<div id="root-nav" className="container-fluid navbar">
 					<Row >
 						<Col>
 							<Link className="navlink" to="/home">Home</Link>

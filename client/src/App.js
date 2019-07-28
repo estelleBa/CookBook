@@ -22,7 +22,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App(){
 	return (
 		<Router>
-			<div>
+			<div id="container-root" style={{ minHeight: '100vh' }}>
 				<Route path="/" component={Header} />
 				<Route path="/home" component={Home} />
 				<Route path="/login" component={Login} />

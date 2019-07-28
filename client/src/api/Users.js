@@ -60,3 +60,27 @@ export const CheckMail = (param) => {
 		return res.data;
 	});
 }
+
+export const GetFollow = () => {
+	return axios.get(address+'/following', {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}
+
+export const PostFollow = (params) => {
+	let body = {
+		'id': params.id,
+		'type': params.type
+	}
+	return axios.post(address+'/follow', body, {
+		params:{ "id": localStorage.getItem('user_id') },
+		headers:{"Content-Type": "application/json"}
+	})
+  .then(res => {
+		return res.data;
+	});
+}

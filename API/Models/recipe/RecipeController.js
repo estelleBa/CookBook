@@ -397,7 +397,6 @@ router.route('/search/hashtags')
 function isLoggedIn(req, callback){
 	if(req.query.id===undefined) callback(false);
 	else {
-		const user_id = mongoose.Types.ObjectId(req.query.id);
 		UserModel.User.findOne({ _id : req.query.id }).exec(function(err, doc){
 			if(err) callback(false);
 			else if(doc) callback(doc._id);

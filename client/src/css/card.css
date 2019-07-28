@@ -1,12 +1,21 @@
+::-webkit-scrollbar {
+  width: 3px;
+}
 .recipe_header {
   margin: 5px;
   width: 90%;
 }
 .recipe_title {
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   color: #fff;
   letter-spacing: 2px;
   font-weight: 100;
+}
+.recipe_date {
+  margin-left: 10px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: #a1a1a1;
 }
 .recipe_labels {
   height: 10px;
@@ -24,19 +33,82 @@
   margin: 0;
 }
 .recipe_card {
+  font-size: 18px;
   width: 60%;
   margin: 5px;
   border: 1px solid #424242;
   border-radius: 4px;
+  background-color: #fff;
+  padding: 10px;
+  height: 650px;
+  overflow-y: scroll;
 }
 .recipe_note {
   width: 30%;
   margin: 5px;
   border: 1px solid #424242;
   border-radius: 4px;
+  background-color: #fff;
+  padding: 10px;
+  height: 650px;
+  overflow-y: scroll;
 }
 .user_img {
   border-radius: 50%;
   width: 50px;
   height: 50px;
+}
+.follow_btn {
+  margin: auto 0;
+  width: 100%;
+}
+.follow_btn>p {
+  margin: 0;
+  float: right;
+  padding: .375rem .75rem;
+  height: calc(1.5em + .75rem + 2px);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.Follow {
+  color: #fff;
+  background-color: #007bff;
+}
+.Unfollow {
+  color: #007bff;
+  background-color: #fff;
+  border: 1px solid #007bff;
+}
+.recipe_info {
+  display: flex;
+}
+.recipe_info>div>p {
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+.qty_btn {
+  color: #fff;
+  background-color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.recipe_img {
+  width: 100%;
+}
+.recipe_note {
+  display: flex;
+}
+.blue_line {
+  border-bottom: 1px solid #007bff;
+  margin: 15px;
+}
+.recipe_ingr, .recipe_text {
+  margin: 5px;
+}
+.recipe_ingr>h5, .recipe_text>h5 {
+  color: #007bff;
+}
+.ingr_list>p, , .recipe_text>p {
+  font-size: 18px;
+  margin: 5px;
 }
